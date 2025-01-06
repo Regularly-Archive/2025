@@ -150,5 +150,5 @@ pip install -r app/requirements.txt
 ## 联系方式
 
 - 邮箱: qinyuanpei@163.com
-- GitHub: [your-username](https://github.com/qinyuanpei)
+- GitHub: [qinyuanpei](https://github.com/qinyuanpei)
 

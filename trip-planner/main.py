@@ -160,7 +160,7 @@ def generate_itinerary(attractions, days: int) -> str:
         推荐景点（应优先考虑）：
         {json.dumps([s['name'] for s in filtered_attractions], ensure_ascii=False)}
         
-        所有可用景点：:
+        所有可用景点:
         {json.dumps(attractions, ensure_ascii=False)}
         
        要求：
@@ -168,6 +168,7 @@ def generate_itinerary(attractions, days: int) -> str:
         * 确保推荐景点得到适当的曝光。
         * 创建一个平衡且合理的路线。
         * 考虑景点之间的交通时间。
+        * 每天至少两个景点, 最多不超过四个景点
         """
 
     # 调用 OpenAI API
