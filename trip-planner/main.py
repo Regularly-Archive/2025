@@ -28,6 +28,7 @@ class TripRequest(BaseModel):
 class TripPlan(BaseModel):
     itinerary: str
 
+# 定义工具
 tools = [
     {
         "type": "function",
@@ -148,7 +149,7 @@ def handle_function_call(function_name, arguments, user_input):
     else:
         raise ValueError(f"未知的函数: {function_name}")
     
-# 生成行程计划的函数
+# 生成行程计划
 def generate_itinerary(attractions, days: int) -> str:
     attractions = json.loads(attractions)
     filtered_attractions = filter(lambda x:x['payment_level'] > 0, attractions)
@@ -183,8 +184,9 @@ def generate_itinerary(attractions, days: int) -> str:
     itinerary = response.choices[0].message.content.strip()
     return itinerary
 
+# 提取意图
 def extract_intent(user_input: str) -> str:
-    # 调用 OpenAI API，启用 Function Calling
+    # 启用 Function Calling
     response = client.chat.completions.create(
         model="deepseek-chat",
         messages=[
@@ -195,7 +197,7 @@ def extract_intent(user_input: str) -> str:
         tool_choice="auto"
     )
 
-    # 检查是否需要调用函数
+
     response_message = response.choices[0].message
     if response_message.tool_calls != None and len(response_message.tool_calls) > 0:
         # 提取函数调用信息
@@ -219,6 +221,7 @@ def extract_intent(user_input: str) -> str:
         if len(json.loads(attractions)) < 2 * days:
             return '景点数目不足，暂时无法为您规划行程，请稍后重试'
         
+        # 生成计划
         return generate_itinerary(attractions, days)
     else:
         # 直接返回模型的回复
