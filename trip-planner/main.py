@@ -129,13 +129,18 @@ def search_attractions(province: Optional[str] = None, city: Optional[str] = Non
     return attractions
 
 # 处理 Function Calling
-def handle_function_call(function_name, arguments):
+def handle_function_call(function_name, arguments, user_input):
     if function_name == "search_attractions":
         # 解析参数
         args = json.loads(arguments)
         province = args.get("province")
         city = args.get("city")
-        tags = args.get("tags")
+        ai_tags = args.get("tags")
+        manual_tags = tokenize_user_input(user_input)
+
+        tags = []
+        tags.extend(ai_tags)
+        tags.extend(manual_tags)
 
         # 调用查询函数
         attractions = search_attractions(province, city, tags)
@@ -199,10 +204,10 @@ def extract_intent(user_input: str) -> str:
         arguments = tool_call.function.arguments
 
         # 调用函数并获取结果
-        attractions = handle_function_call(function_name, arguments)
+        attractions = handle_function_call(function_name, arguments, user_input)
         if len(json.loads(attractions)) == 0:
-            return '暂时无法为您规划行程，请稍后重试'
-
+            return '无符合要求的景点，暂时无法为您规划行程，请稍后重试'
+        
         # 将函数调用结果返回给模型
         args = json.loads(arguments)
         days = args.get("days")
@@ -210,6 +215,10 @@ def extract_intent(user_input: str) -> str:
             days = 3
         else:
             days = int(days)
+
+        if len(json.loads(attractions)) < 2 * days:
+            return '景点数目不足，暂时无法为您规划行程，请稍后重试'
+        
         return generate_itinerary(attractions, days)
     else:
         # 直接返回模型的回复
