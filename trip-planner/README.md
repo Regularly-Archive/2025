@@ -123,7 +123,7 @@ CREATE TABLE attractions (
 如果不使用 Docker，可以手动安装依赖：
 
 ```bash
-pip install -r app/requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 依赖列表
