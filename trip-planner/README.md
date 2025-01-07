@@ -38,6 +38,7 @@ cd trip-planner
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 ```
+推荐使用国产大模型：[DeepSeek](https://api-docs.deepseek.com/zh-cn/)
 
 ### 3. 启动服务
 
