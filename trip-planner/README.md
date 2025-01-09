@@ -8,7 +8,7 @@ Trip Planner 是一个基于 **FastAPI** 和 **OpenAI** 的旅游行程规划系
 
 1. **自然语言输入**：用户可以用自然语言描述旅行需求，例如 "我想去西安玩3天，喜欢历史和文化，适合亲子游"。
 2. **景点检索**：系统根据用户输入的关键词（如省份、城市、标签）从数据库中检索相关景点。
-3. **行程生成**：调用 OpenAI 的 GPT 模型，生成详细的行程计划，包括每天的景点、餐饮、交通等安排。
+3. **行程生成**：调用 OpenAI 以及类 OpenAI 的大语言模型，生成详细的行程计划，包括每天的景点、餐饮、交通等安排。
 4. **支付等级优先**：优先推荐高支付等级的景点。
 5. **Docker 支持**：通过 Docker Compose 一键部署 FastAPI 应用和 PostgreSQL 数据库。
 
@@ -88,11 +88,16 @@ docker-compose down
 trip-planner/
 ├── main.py               # FastAPI 主程序
 ├── requirements.txt      # 依赖文件
-├── docker-compose.yml        # Docker Compose 配置文件
-├── Dockerfile                # FastAPI 应用的 Dockerfile
-├── .env                      # 环境变量文件
-├── init.sql                  # 初始化 PostgreSQL 数据库的 SQL 脚本
-└── README.md                 # 项目说明文件
+├── docker-compose.yml    # Docker Compose 配置文件
+├── Dockerfile            # FastAPI 应用的 Dockerfile
+├── .env                  # 环境变量文件
+├── init.sql              # 初始化 PostgreSQL 数据库的 SQL 脚本
+├── tests/                # 测试代码
+├── models/               # 数据模型
+├── repositories/         # 数据库访问层
+├── services/             # 业务逻辑层
+├── utils/                # 工具函数
+└── README.md             # 项目说明文件
 ```
 
 ---
@@ -117,6 +122,10 @@ CREATE TABLE attractions (
 
 ---
 
+## 开发环境
+
+
+
 ## 依赖安装
 
 ### 手动安装依赖
@@ -127,12 +136,16 @@ pip install -r requirements.txt
 ```
 
 ### 依赖列表
-- `fastapi`
-- `uvicorn`
-- `python-dotenv`
-- `openai`
-- `psycopg2`
-- `jieba`
+- `fastapi==0.95.2`
+- `uvicorn==0.22.0`
+- `python-dotenv==1.0.0`
+- `openai==0.27.4`
+- `psycopg2-binary==2.9.6`
+- `sqlalchemy==2.0.15`
+- `jieba==0.42.1`
+- `alembic==1.10.2`
+- `httpx==0.23.3`
+- `python-multipart==0.0.6`
 
 ---
 
@@ -152,4 +165,3 @@ pip install -r requirements.txt
 
 - 邮箱: qinyuanpei@163.com
 - GitHub: [qinyuanpei](https://github.com/qinyuanpei)
-
