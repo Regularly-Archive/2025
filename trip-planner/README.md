@@ -38,6 +38,7 @@ cd trip-planner
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 ```
+推荐使用国产大模型：[DeepSeek](https://api-docs.deepseek.com/zh-cn/)
 
 ### 3. 启动服务
 
@@ -122,7 +123,7 @@ CREATE TABLE attractions (
 如果不使用 Docker，可以手动安装依赖：
 
 ```bash
-pip install -r app/requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 依赖列表
