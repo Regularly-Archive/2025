@@ -3,3 +3,75 @@ trip-planner/models/__pycache__/
 trip-planner/repositories/__pycache__/
 trip-planner/services/__pycache__/
 trip-planner/utils/__pycache__/
+sqlmodel-journey/.venv/
+sqlmodel-journey/app/utils/__pycache__/
+sqlmodel-journey/app/repositories/__pycache__/__init__.cpython-39.pyc
+sqlmodel-journey/app/repositories/__pycache__/
+
+# 通用忽略规则
+.DS_Store
+*.log
+*.swp
+*.swo
+*.bak
+*.tmp
+*.idea
+*.vscode
+*.suo
+*.user
+*.cache
+*.pid
+*.seed
+*.pid.lock
+*.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log.*
+logs/
+dist/
+build/
+out/
+
+# 忽略 bin 和 obj 目录（C#/.NET）
+[Bb]in/
+[Oo]bj/
+
+# 忽略调试目录
+[Dd]ebug/
+[Rr]elease/
+
+# 忽略 Node.js 依赖目录
+node_modules/
+
+# 忽略 Python 缓存文件和虚拟环境
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# 忽略数据库文件
+*.sqlite3
+*.sqlite
+*.db
+*.db-journal
+*.sql
+*.sql.gz
+*.sqlite-shm
+*.sqlite-wal
+
+# 忽略 IDE 配置文件
+.idea/
+.vscode/
