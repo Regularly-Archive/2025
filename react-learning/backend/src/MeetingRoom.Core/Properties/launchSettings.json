@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "MeetingRoom.Core": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:63569;http://localhost:63570"
+    }
+  }
+}
