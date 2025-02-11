@@ -4,10 +4,14 @@ import {
   Paper,
   Typography,
   Chip,
+  Card,
+  CardContent,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   Stack,
+  Grid
 } from '@mui/material';
 import { DateCalendar } from '@mui/x-date-pickers';
 import {
@@ -17,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { format, isSameDay } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import BookingCard from './BookingCard';
 
 // 模拟预约数据
 const mockBookings = [
@@ -29,7 +34,7 @@ const mockBookings = [
     endTime: new Date('2024-03-20T11:30:00'),
     attendees: '张三, 李四, 王五',
     status: 'upcoming',
-    description: '讨论新产品功能特性',
+    description: '讨论新产品功能特性233333333333333333333333333333333333333333333',
   },
   {
     id: 2,
@@ -57,21 +62,14 @@ function Calendar() {
     return mockBookings.filter(booking => isSameDay(booking.startTime, date));
   };
 
-  const getStatusColor = (status) => {
-    const statusColors = {
-      upcoming: 'primary',
-      ongoing: 'success',
-      completed: 'default',
-      cancelled: 'error',
-    };
-    return statusColors[status];
+  const handleCancelBooking = (booking) => {
   };
 
   const selectedDayBookings = getDayBookings(selectedDate);
 
   return (
     <Box sx={{ display: 'flex', gap: 3 }}>
-      <Paper sx={{ p: 2, flex: '0 0 auto' }}>
+      <Paper sx={{ p: 2, flex: '0 0 auto', height: 'fit-content' }}>
         <DateCalendar
           value={selectedDate}
           onChange={handleDateChange}
@@ -108,36 +106,37 @@ function Calendar() {
           {format(selectedDate, 'yyyy年MM月dd日', { locale: zhCN })}的预约
         </Typography>
 
-        <Stack spacing={2}>
+
+
+        <Grid container spacing={3}>
           {selectedDayBookings.map((booking) => (
-            <Paper
-              key={booking.id}
-              sx={{ p: 2, cursor: 'pointer' }}
-              onClick={() => setSelectedBooking(booking)}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {booking.title}
-                </Typography>
-                <Chip
-                  size="small"
-                  label={format(booking.startTime, 'HH:mm') + ' - ' + format(booking.endTime, 'HH:mm')}
-                  color={getStatusColor(booking.status)}
-                />
-              </Box>
-              <Typography color="text.secondary" sx={{ mb: 1 }}>
-                <RoomIcon sx={{ mr: 1, verticalAlign: 'middle', fontSize: 'small' }} />
-                {booking.roomName}
-              </Typography>
-            </Paper>
+            <Grid item xs={12} sm={12} md={12} key={booking.id}>
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                onCancel={handleCancelBooking}
+              />
+            </Grid>
           ))}
 
           {selectedDayBookings.length === 0 && (
-            <Typography color="text.secondary" textAlign="center">
-              当天暂无预约
-            </Typography>
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  height: '200px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%'
+                }}
+              >
+                <Typography color="text.secondary">
+                  暂无预约记录
+                </Typography>
+              </Box>
+            </Grid>
           )}
-        </Stack>
+        </Grid>
       </Box>
 
       <Dialog
@@ -153,10 +152,10 @@ function Calendar() {
               <RoomIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
               {selectedBooking?.roomName}
             </Typography>
-            
+
             <Typography>
               <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {selectedBooking && format(selectedBooking.startTime, 'HH:mm')} - 
+              {selectedBooking && format(selectedBooking.startTime, 'HH:mm')} -
               {selectedBooking && format(selectedBooking.endTime, 'HH:mm')}
             </Typography>
 

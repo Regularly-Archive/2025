@@ -5,6 +5,7 @@ import {
   Tab,
   Card,
   CardContent,
+  Grid,
   Typography,
   Button,
   Stack,
@@ -22,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import BookingCard from './BookingCard';
 
 // 模拟预约数据
 const mockBookings = [
@@ -47,6 +49,17 @@ const mockBookings = [
     status: 'completed',
     description: '回顾本周工作进展',
   },
+  {
+    id: 3,
+    roomId: 2,
+    roomName: '会议室 B',
+    title: '团队周会',
+    startTime: new Date('2024-03-18T14:00:00'),
+    endTime: new Date('2024-03-18T15:00:00'),
+    attendees: '整个开发团队',
+    status: 'upcoming',
+    description: '回顾本周工作进展',
+  }
   // 更多预约记录...
 ];
 
@@ -101,62 +114,35 @@ function MyBookings() {
         <Tab value="cancelled" label="已取消" />
       </Tabs>
 
-      <Stack spacing={2}>
+      <Grid container spacing={3}>
         {filteredBookings.map((booking) => (
-          <Card key={booking.id}>
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6">
-                  {booking.title}
-                </Typography>
-                {getStatusChip(booking.status)}
-              </Box>
-
-              <Stack spacing={1}>
-                <Typography color="text.secondary">
-                  <RoomIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  {booking.roomName}
-                </Typography>
-
-                <Typography color="text.secondary">
-                  <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  {format(booking.startTime, 'yyyy年MM月dd日 HH:mm', { locale: zhCN })} - 
-                  {format(booking.endTime, 'HH:mm', { locale: zhCN })}
-                </Typography>
-
-                <Typography color="text.secondary">
-                  <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  {booking.attendees}
-                </Typography>
-
-                {booking.description && (
-                  <Typography color="text.secondary" sx={{ mt: 1 }}>
-                    {booking.description}
-                  </Typography>
-                )}
-              </Stack>
-
-              {booking.status === 'upcoming' && (
-                <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleCancelBooking(booking)}
-                  >
-                    取消预约
-                  </Button>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
+          <Grid item xs={12} sm={6} md={4} key={booking.id}>
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              onCancel={handleCancelBooking}
+            />
+          </Grid>
         ))}
 
         {filteredBookings.length === 0 && (
-          <Typography color="text.secondary" textAlign="center">
-            暂无预约记录
-          </Typography>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                height: '200px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              <Typography color="text.secondary" textAlign="center">
+                暂无预约记录
+              </Typography>
+            </Box>
+          </Grid>
         )}
-      </Stack>
+      </Grid>
 
       <Dialog
         open={openCancelDialog}

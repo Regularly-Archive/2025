@@ -34,7 +34,7 @@ function Admin() {
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="用户管理" />
           <Tab label="会议室管理" />
-          <Tab label="预约记录" />
+          <Tab label="预约管理" />
         </Tabs>
       </Box>
 
