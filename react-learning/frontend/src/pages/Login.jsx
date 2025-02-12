@@ -1,15 +1,17 @@
-import { useState } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  TextField, 
-  Button, 
+import { useState, useEffect } from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  TextField,
+  Button,
   Typography,
   Alert
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { post } from '../utils/request';
+import { md5 } from '../utils/crypto';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -20,20 +22,26 @@ function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
-      // 这里应该调用实际的登录 API
-      // 目前模拟登录成功
-      const mockUserData = {
-        id: 1,
-        username: formData.username,
-        role: formData.username === 'admin' ? 'admin' : 'user'
-      };
-      
-      login(mockUserData);
+      const res = await post('api/Users/login',
+        {
+          userName: formData.username,
+          password: md5(formData.password)
+        }
+      );
+
+      localStorage.setItem('token', res.data.token);
+      login(res.data.userInfo);
       navigate('/dashboard');
     } catch (err) {
       setError('登录失败，请检查用户名和密码');

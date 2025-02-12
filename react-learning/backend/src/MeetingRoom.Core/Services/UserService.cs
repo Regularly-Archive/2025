@@ -88,7 +88,10 @@ namespace MeetingRoom.Core.Services
                 UserInfo = new UserDTO
                 {
                     Id = userInfo.Id,
+                    NickName = userInfo.NickName,
                     UserName = userInfo.UserName,
+                    Email = userInfo.Email,
+                    Department = userInfo.Department,
                     Role = userInfo.Role,
                 }
             };

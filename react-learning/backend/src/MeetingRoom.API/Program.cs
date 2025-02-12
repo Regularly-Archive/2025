@@ -2,6 +2,7 @@ using MeetingRoom.API.Middlewares;
 using MeetingRoom.Core.Converters;
 using MeetingRoom.Core.Entities;
 using MeetingRoom.Core.ModelBindings;
+using MeetingRoom.Core.Models;
 using MeetingRoom.Core.Services;
 using MeetingRoom.Infrastructure.Repositories;
 using MeetingRoom.Infrastructure.Services;
@@ -43,9 +44,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            ValidIssuer = builder.Configuration["JwtSetting:Issuer"],
+            ValidAudience = builder.Configuration["JwtSetting:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSetting:Secret"]))
         };
     });
 
@@ -89,8 +90,10 @@ builder.Services.AddScoped(typeof(CrudBaseService<>));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserService, UserService>();
 
+
 builder.Services.AddScoped<IBookingService, BookingService>();
 
+builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection(nameof(JwtSetting)));
 builder.Services.AddHttpContextAccessor();
 
 // Configure Swagger

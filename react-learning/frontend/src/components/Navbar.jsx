@@ -18,7 +18,7 @@ function Navbar() {
               <Button color="inherit" onClick={() => navigate('/dashboard')}>
                 控制台
               </Button>
-              {user.role === 'admin' && (
+              {user.role === 1 && (
                 <Button color="inherit" onClick={() => navigate('/admin')}>
                   管理
                 </Button>

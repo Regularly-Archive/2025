@@ -5,12 +5,13 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
-  const login = (userData) => {
-    setUser(userData);
+  const login = (userInfo) => {
+    setUser(userInfo);
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('token');
   };
 
   return (
