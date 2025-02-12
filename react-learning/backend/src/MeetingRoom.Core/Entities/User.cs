@@ -9,6 +9,9 @@ namespace MeetingRoom.Core.Entities;
 public class User : BaseEntity
 {
     [SugarColumn(Length = 50)]
+    public string NickName { get; set; }
+
+    [SugarColumn(Length = 50)]
     public string UserName { get; set; }
 
     [SugarColumn(Length = 100)]
@@ -16,6 +19,9 @@ public class User : BaseEntity
 
     [SugarColumn(Length = 100)]
     public string Email { get; set; }
+
+    [SugarColumn(Length = 50)]
+    public string Department { get; set; }
 
     public UserRole Role { get; set; }
 

@@ -1,4 +1,5 @@
 using MeetingRoom.Core.DTOs;
+using MeetingRoom.Core.Entities;
 using MeetingRoom.Core.Models;
 using MeetingRoom.Infrastructure.Models;
 using static Azure.Core.HttpHeader;
@@ -6,7 +7,7 @@ using static Azure.Core.HttpHeader;
 public interface IUserService
 {
     Task<UserDTO> GetByIdAsync(long id);
-    Task<PagedResult<UserDTO>> GetPagedListAsync(UserQueryDTO query);
+    Task<PagedResult<UserDTO>> GetPagedListAsync(QueryParameter<User,UserQueryableFilter> queryParameter);
     Task<bool> DeleteAsync(long id);
 
     Task<UserDTO> GetCurrentUserAsync();

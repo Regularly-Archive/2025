@@ -1,27 +1,49 @@
 import { useState } from 'react';
+import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {
   Box,
-  Paper,
-  Typography,
-  Chip,
-  Card,
-  CardContent,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   Stack,
-  Grid
+  Typography,
 } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers';
 import {
   Room as RoomIcon,
   Group as GroupIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
-import { format, isSameDay } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
-import BookingCard from './BookingCard';
+
+// 配置本地化
+const locales = {
+  'zh-CN': zhCN,
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+// 自定义日历消息
+const messages = {
+  today: '今天',
+  previous: '上一页',
+  next: '下一页',
+  month: '月',
+  week: '周',
+  day: '日',
+  agenda: '议程',
+  date: '日期',
+  time: '时间',
+  event: '事件',
+  noEventsInRange: '当前时间段无预约',
+};
 
 // 模拟预约数据
 const mockBookings = [
@@ -30,19 +52,19 @@ const mockBookings = [
     roomId: 1,
     roomName: '会议室 A',
     title: '产品评审会议',
-    startTime: new Date('2024-03-20T10:00:00'),
-    endTime: new Date('2024-03-20T11:30:00'),
+    start: new Date('2024-03-20T10:00:00'),
+    end: new Date('2024-03-20T11:30:00'),
     attendees: '张三, 李四, 王五',
     status: 'upcoming',
-    description: '讨论新产品功能特性233333333333333333333333333333333333333333333',
+    description: '讨论新产品功能特性',
   },
   {
     id: 2,
     roomId: 2,
     roomName: '会议室 B',
     title: '团队周会',
-    startTime: new Date('2024-03-20T14:00:00'),
-    endTime: new Date('2024-03-20T15:00:00'),
+    start: new Date('2024-03-20T14:00:00'),
+    end: new Date('2024-03-20T15:00:00'),
     attendees: '整个开发团队',
     status: 'upcoming',
     description: '回顾本周工作进展',
@@ -51,122 +73,70 @@ const mockBookings = [
 ];
 
 function Calendar() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
+  // 自定义事件样式
+  const eventStyleGetter = (event) => {
+    const style = {
+      backgroundColor: '#1976d2',
+      borderRadius: '4px',
+      opacity: 0.8,
+      color: 'white',
+      border: 'none',
+      display: 'block'
+    };
+    return { style };
   };
 
-  const getDayBookings = (date) => {
-    return mockBookings.filter(booking => isSameDay(booking.startTime, date));
+  // 处理事件点击
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
   };
-
-  const handleCancelBooking = (booking) => {
-  };
-
-  const selectedDayBookings = getDayBookings(selectedDate);
 
   return (
-    <Box sx={{ display: 'flex', gap: 3 }}>
-      <Paper sx={{ p: 2, flex: '0 0 auto', height: 'fit-content' }}>
-        <DateCalendar
-          value={selectedDate}
-          onChange={handleDateChange}
-          locale={zhCN}
-          // 高亮有会议的日期
-          renderDay={(day, _value, DayComponentProps) => {
-            const hasBookings = getDayBookings(day).length > 0;
-            return (
-              <Box
-                sx={{
-                  position: 'relative',
-                  '&::after': hasBookings ? {
-                    content: '""',
-                    position: 'absolute',
-                    bottom: 2,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 4,
-                    height: 4,
-                    borderRadius: '50%',
-                    backgroundColor: 'primary.main',
-                  } : undefined,
-                }}
-              >
-                {DayComponentProps.children}
-              </Box>
-            );
-          }}
-        />
-      </Paper>
-
-      <Box sx={{ flex: 1 }}>
-        <Typography variant="h6" gutterBottom>
-          {format(selectedDate, 'yyyy年MM月dd日', { locale: zhCN })}的预约
-        </Typography>
-
-
-
-        <Grid container spacing={3}>
-          {selectedDayBookings.map((booking) => (
-            <Grid item xs={12} sm={12} md={12} key={booking.id}>
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                onCancel={handleCancelBooking}
-              />
-            </Grid>
-          ))}
-
-          {selectedDayBookings.length === 0 && (
-            <Grid item xs={12}>
-              <Box
-                sx={{
-                  height: '200px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%'
-                }}
-              >
-                <Typography color="text.secondary">
-                  暂无预约记录
-                </Typography>
-              </Box>
-            </Grid>
-          )}
-        </Grid>
-      </Box>
+    <Box sx={{ height: 'calc(100vh - 100px)' }}>
+      <BigCalendar
+        localizer={localizer}
+        events={mockBookings}
+        startAccessor="start"
+        endAccessor="end"
+        style={{ height: '100%' }}
+        messages={messages}
+        eventPropGetter={eventStyleGetter}
+        onSelectEvent={handleEventClick}
+        views={['month', 'week', 'day', 'agenda']}
+        defaultView="month"
+        culture="zh-CN"
+      />
 
       <Dialog
-        open={!!selectedBooking}
-        onClose={() => setSelectedBooking(null)}
+        open={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>{selectedBooking?.title}</DialogTitle>
+        <DialogTitle>{selectedEvent?.title}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 2 }}>
             <Typography>
               <RoomIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {selectedBooking?.roomName}
+              {selectedEvent?.roomName}
             </Typography>
 
             <Typography>
               <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {selectedBooking && format(selectedBooking.startTime, 'HH:mm')} -
-              {selectedBooking && format(selectedBooking.endTime, 'HH:mm')}
+              {selectedEvent && format(selectedEvent.start, 'HH:mm')} -
+              {selectedEvent && format(selectedEvent.end, 'HH:mm')}
             </Typography>
 
             <Typography>
               <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {selectedBooking?.attendees}
+              {selectedEvent?.attendees}
             </Typography>
 
-            {selectedBooking?.description && (
+            {selectedEvent?.description && (
               <Typography sx={{ mt: 2 }}>
-                {selectedBooking.description}
+                {selectedEvent.description}
               </Typography>
             )}
           </Stack>

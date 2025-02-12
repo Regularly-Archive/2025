@@ -6,48 +6,6 @@ using SqlSugar;
 
 namespace MeetingRoom.Core.DTOs;
 
-public class RoomDto
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public int Capacity { get; set; }
-    public RoomStatus Status { get; set; }
-    public RoomType Type { get; set; }
-    public string Description { get; set; }
-    public TimeSpan AvailableStartTime { get; set; }
-    public TimeSpan AvailableEndTime { get; set; }
-}
-
-public class CreateRoomDto
-{
-    public string Name { get; set; }
-    public int Capacity { get; set; }
-    public RoomType Type { get; set; }
-    public string Description { get; set; }
-    public TimeSpan AvailableStartTime { get; set; }
-    public TimeSpan AvailableEndTime { get; set; }
-}
-
-public class UpdateRoomDto
-{
-    public string Name { get; set; }
-    public int? Capacity { get; set; }
-    public RoomStatus? Status { get; set; }
-    public RoomType? Type { get; set; }
-    public string Description { get; set; }
-    public TimeSpan? AvailableStartTime { get; set; }
-    public TimeSpan? AvailableEndTime { get; set; }
-}
-
-public class RoomQueryDto
-{
-    public int PageIndex { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-    public string Keywords { get; set; }
-    public RoomStatus? Status { get; set; }
-    public RoomType? Type { get; set; }
-}
-
 public class RoomQueryableFilter : IQueryableFilter<Room>
 {
     public string Keyword { get; set; }

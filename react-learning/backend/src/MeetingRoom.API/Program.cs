@@ -1,18 +1,35 @@
+using MeetingRoom.API.Middlewares;
+using MeetingRoom.Core.Converters;
 using MeetingRoom.Core.Entities;
+using MeetingRoom.Core.ModelBindings;
 using MeetingRoom.Core.Services;
 using MeetingRoom.Infrastructure.Repositories;
 using MeetingRoom.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SqlSugar;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new QueryParameterBinderProvider());
+    options.Filters.Add<GlobalExceptionFilter>();
+})
+.AddJsonOptions(cfg =>
+{
+    cfg.JsonSerializerOptions.Converters.Add(new BigIntJsonConverter());
+    cfg.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+    cfg.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -44,13 +61,14 @@ builder.Services.AddAuthorization(options =>
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowedOrigins",
-        policyBuilder =>
-        {
-            policyBuilder.WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>())
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-        });
+    options.AddDefaultPolicy(policyBuilder =>
+    {
+        policyBuilder.WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>())
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+
 });
 
 // Register Services
@@ -118,7 +136,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowedOrigins");
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

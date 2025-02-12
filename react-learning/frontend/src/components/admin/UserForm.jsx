@@ -11,22 +11,23 @@ import {
   MenuItem,
   Stack,
 } from '@mui/material';
+import { md5 } from '../../utils/crypto';
 
 function UserForm({ user, onSave, onCancel }) {
   const [formData, setFormData] = useState({
-    username: '',
-    name: '',
+    userName: '',
+    nickName: '',
     email: '',
     department: '',
-    role: 'user',
-    password: '', // 仅用于新用户
+    role: 0,
+    password: '',
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
-        username: user.username,
-        name: user.name,
+        userName: user.userName,
+        nickName: user.nickName,
         email: user.email,
         department: user.department,
         role: user.role,
@@ -44,7 +45,14 @@ function UserForm({ user, onSave, onCancel }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    const submitData = { ...formData };
+
+    if (!user && submitData.password) {
+      submitData.password = md5(submitData.password);
+    }
+    
+    submitData.role = parseInt(submitData.role);
+    onSave(submitData);
   };
 
   return (
@@ -55,18 +63,18 @@ function UserForm({ user, onSave, onCancel }) {
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 2 }}>
           <TextField
-            name="username"
+            name="userName"
             label="用户名"
-            value={formData.username}
+            value={formData.userName}
             onChange={handleChange}
             required
             disabled={!!user}
           />
           
           <TextField
-            name="name"
+            name="nickName"
             label="姓名"
-            value={formData.name}
+            value={formData.nickName}
             onChange={handleChange}
             required
           />
@@ -107,8 +115,8 @@ function UserForm({ user, onSave, onCancel }) {
               onChange={handleChange}
               label="角色"
             >
-              <MenuItem value="user">普通用户</MenuItem>
-              <MenuItem value="admin">管理员</MenuItem>
+              <MenuItem value="0">普通用户</MenuItem>
+              <MenuItem value="1">管理员</MenuItem>
             </Select>
           </FormControl>
         </Stack>

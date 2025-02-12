@@ -37,17 +37,14 @@ namespace MeetingRoom.Core.Services
             return userInfo.Adapt<UserDTO>();
         }
 
-        public async Task<PagedResult<UserDTO>> GetPagedListAsync(UserQueryDTO query)
+        public async Task<PagedResult<UserDTO>> GetPagedListAsync(QueryParameter<User, UserQueryableFilter> queryParameter)
         {
-            throw new NotImplementedException();
-            //var pagedList = await _userRepository.PaginateAsync<>;
-            //return new PagedList<UserDTO>
-            //{
-            //    Items = pagedList.Items.Select(MapToDto).ToList(),
-            //    TotalCount = pagedList.TotalCount,
-            //    PageIndex = pagedList.PageIndex,
-            //    PageSize = pagedList.PageSize
-            //};
+            var result = await _userRepository.PaginateAsync(queryParameter);
+            return new PagedResult<UserDTO>
+            {
+                Rows = result.Rows.Adapt<List<UserDTO>>(),
+                TotalCount = result.TotalCount,
+            };
         }
 
         public async Task<bool> DeleteAsync(long id)
@@ -105,10 +102,12 @@ namespace MeetingRoom.Core.Services
 
             var newUser = new User
             {
-                Role = UserRole.User,
+                Role = request.Role.HasValue ? request.Role.Value : UserRole.User,
                 Email = request.Email,
                 UserName = request.UserName,
                 Password = encrypted,
+                NickName = request.NickName,
+                Department = request.Department,
             };
             await _userRepository.AddAsync(newUser);
         }

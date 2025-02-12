@@ -1,6 +1,9 @@
 using MeetingRoom.API.Models;
 using MeetingRoom.Core.DTOs;
+using MeetingRoom.Core.Entities;
 using MeetingRoom.Core.Models;
+using MeetingRoom.Infrastructure.Models;
+using MeetingRoom.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,6 +52,20 @@ public class UsersController : ControllerBase
     public async Task<JsonResult> ChangePassword([FromBody] ChangePasswordDTO request)
     {
         await _userService.ChangePassword(request);
+        return ApiResult.Success(new { }, "操作成功");
+    }
+
+    [HttpGet("paginate")]
+    public virtual async Task<JsonResult> GetByPageAsync([FromQuery] QueryParameter<User, UserQueryableFilter> queryParameter)
+    {
+        var result = await _userService.GetPagedListAsync(queryParameter);
+        return ApiResult.Success(result, "操作成功");
+    }
+
+    [HttpDelete("{id}")]
+    public virtual async Task<JsonResult> DeleteAsync(long id)
+    {
+        await _userService.DeleteAsync(id);
         return ApiResult.Success(new { }, "操作成功");
     }
 }

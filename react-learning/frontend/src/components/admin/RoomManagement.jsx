@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -12,44 +12,50 @@ import {
   IconButton,
   Dialog,
   Chip,
+  TablePagination,
+  TextField,
+  InputAdornment
 } from '@mui/material';
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  Search as SearchIcon
 } from '@mui/icons-material';
 import RoomForm from './RoomForm';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
-
-// 模拟会议室数据
-const mockRooms = [
-  {
-    id: 1,
-    name: '会议室 A',
-    capacity: 10,
-    type: '普通会议室',
-    status: 'available',
-    facilities: ['投影仪', '白板'],
-    availableTime: '09:00-18:00',
-    description: '适合小型会议',
-  },
-  {
-    id: 2,
-    name: '会议室 B',
-    capacity: 20,
-    type: '多媒体会议室',
-    status: 'maintenance',
-    facilities: ['视频会议系统', '投影仪', '音响'],
-    availableTime: '09:00-18:00',
-    description: '配备完整视频会议设备',
-  },
-];
+import { get, post, put, del } from '../../utils/request';
 
 function RoomManagement() {
-  const [rooms, setRooms] = useState(mockRooms);
+  const [rooms, setRooms] = useState([]);
   const [openForm, setOpenForm] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [keyword, setKeyword] = useState('');
+
+  // 获取会议室列表数据
+  const fetchRooms = async (pageIndex, pageSize) => {
+    try {
+      setLoading(true);
+      const response = await get(`api/rooms/paginate?pageIndex=${pageIndex + 1}&pageSize=${pageSize}&keyword=${keyword}`);
+      if (response.data) {
+        setRooms(response.data.rows);
+        setTotalCount(response.data.totalCount);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRooms(page, rowsPerPage);
+  }, [page, rowsPerPage]);
 
   const handleAdd = () => {
     setSelectedRoom(null);
@@ -57,8 +63,7 @@ function RoomManagement() {
   };
 
   const handleEdit = (room) => {
-    setSelectedRoom(room);
-    setOpenForm(true);
+    selectRoomById(room.id);
   };
 
   const handleDelete = (room) => {
@@ -66,20 +71,75 @@ function RoomManagement() {
     setOpenDelete(true);
   };
 
-  const handleSave = (roomData) => {
-    if (selectedRoom) {
-      setRooms(rooms.map(room => 
-        room.id === selectedRoom.id ? { ...room, ...roomData } : room
-      ));
-    } else {
-      setRooms([...rooms, { id: Date.now(), ...roomData }]);
+  const handleSave = async (roomData) => {
+    let res = {};
+    try {
+      setLoading(true);
+      if (selectedRoom) {
+        res = await put('api/rooms', {
+          ...roomData,
+          id: selectedRoom.id
+        });
+      } else {
+        res = await post('api/rooms', roomData);
+      }
+      if (res.code === 200) {
+        fetchRooms(page, rowsPerPage);
+        setOpenForm(false);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setOpenForm(false);
   };
 
-  const handleConfirmDelete = () => {
-    setRooms(rooms.filter(room => room.id !== selectedRoom.id));
-    setOpenDelete(false);
+  const handleConfirmDelete = async () => {
+    try {
+      setLoading(true);
+      const res = await del(`api/rooms?ids=${selectedRoom.id}`);
+      if (res.code === 200) {
+        fetchRooms(page, rowsPerPage);
+        setOpenDelete(false);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleSearch = (e) => {
+    setKeyword(e.target.value);
+    const timeoutId = setTimeout(() => {
+      setPage(0);
+      fetchRooms(0, rowsPerPage);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const selectRoomById = async (roomId) => {
+    try {
+      setLoading(true);
+      const response = await get(`api/rooms/${roomId}`);
+      if (response.data) {
+        setSelectedRoom(response.data);
+        setOpenForm(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusChip = (status) => {
@@ -94,7 +154,7 @@ function RoomManagement() {
 
   return (
     <Box>
-      <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 2 }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -102,6 +162,21 @@ function RoomManagement() {
         >
           添加会议室
         </Button>
+      </Box>
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          fullWidth
+          placeholder="搜索会议室..."
+          value={keyword}
+          onChange={handleSearch}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <TableContainer component={Paper}>
@@ -118,42 +193,69 @@ function RoomManagement() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rooms.map((room) => (
-              <TableRow key={room.id}>
-                <TableCell>{room.name}</TableCell>
-                <TableCell>{room.capacity}人</TableCell>
-                <TableCell>{room.type}</TableCell>
-                <TableCell>
-                  {room.facilities.map((facility) => (
-                    <Chip
-                      key={facility}
-                      label={facility}
-                      size="small"
-                      sx={{ mr: 0.5, mb: 0.5 }}
-                    />
-                  ))}
-                </TableCell>
-                <TableCell>{room.availableTime}</TableCell>
-                <TableCell>{getStatusChip(room.status)}</TableCell>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleEdit(room)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => handleDelete(room)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  加载中...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : rooms.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  暂无数据
+                </TableCell>
+              </TableRow>
+            ) : (
+              rooms.map((room) => (
+                <TableRow key={room.id}>
+                  <TableCell>{room.name}</TableCell>
+                  <TableCell>{room.capacity}人</TableCell>
+                  <TableCell>{room.type}</TableCell>
+                  <TableCell>
+                    {room.facilities.map((facility) => (
+                      <Chip
+                        key={facility}
+                        label={facility}
+                        size="small"
+                        sx={{ mr: 0.5, mb: 0.5 }}
+                      />
+                    ))}
+                  </TableCell>
+                  <TableCell>{room.availableTime}</TableCell>
+                  <TableCell>{getStatusChip(room.status)}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEdit(room)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDelete(room)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
+        <TablePagination
+          component="div"
+          count={totalCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="每页行数"
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} 共 ${count} 条`
+          }
+          rowsPerPageOptions={[5, 10, 25]}
+        />
       </TableContainer>
 
       <Dialog

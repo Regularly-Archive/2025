@@ -24,6 +24,9 @@ public class Room : BaseEntity
 
     public TimeSpan AvailableEndTime { get; set; }
 
+    [SugarColumn(ColumnDataType = "varchar(15)[]")]
+    public List<string> Facilities { get; set; }
+
     [SugarColumn(IsIgnore = true)]
     public List<Booking> Bookings { get; set; }
 }
