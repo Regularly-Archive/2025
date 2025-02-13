@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -8,56 +8,68 @@ import {
   Chip,
   Button,
   Dialog,
+  TablePagination,
 } from '@mui/material';
-import { 
+import {
   MeetingRoom as RoomIcon,
   Group as GroupIcon,
-  Event as EventIcon 
+  Event as EventIcon,
 } from '@mui/icons-material';
 import BookingForm from './BookingForm';
-
-// 模拟会议室数据
-const mockRooms = [
-  {
-    id: 1,
-    name: '会议室 A',
-    capacity: 10,
-    type: '普通会议室',
-    status: 'available',
-    facilities: ['投影仪', '白板'],
-  },
-  {
-    id: 2,
-    name: '会议室 B',
-    capacity: 20,
-    type: '多媒体会议室',
-    status: 'occupied',
-    facilities: ['视频会议系统', '投影仪', '音响'],
-  },
-  // 更多会议室...
-];
+import { get } from '../utils/request';
 
 function RoomList() {
+  const [rooms, setRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [openBooking, setOpenBooking] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const fetchRooms = async (pageIndex, pageSize) => {
+    try {
+      const response = await get(`api/rooms/paginate?pageIndex=${pageIndex + 1}&pageSize=${pageSize}`);
+      if (response.data) {
+        setRooms(response.data.rows);
+        setTotalCount(response.data.totalCount);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRooms(page, rowsPerPage);
+  }, [page, rowsPerPage]);
 
   const handleBooking = (room) => {
     setSelectedRoom(room);
     setOpenBooking(true);
   };
 
-  const getStatusColor = (status) => {
-    return status === 'available' ? 'success' : 'error';
+  const getRoomStatusChip = (status) => {
+    const statusConfig = {
+      0: { label: '可用', color: 'success' },
+      1: { label: '维护中', color: 'warning' },
+      2: { label: '占用', color: 'error' },
+    };
+    const config = statusConfig[status];
+    return <Chip label={config.label} color={config.color} size="small" />;
   };
 
-  const getStatusText = (status) => {
-    return status === 'available' ? '空闲' : '占用';
-  };
+  const getRoomType = (type) => {
+    var typeConfig = {
+      0: '普通会议室',
+      1: '多媒体会议室'
+    }
+
+    return typeConfig[type]
+  }
 
   return (
     <Box>
       <Grid container spacing={3}>
-        {mockRooms.map((room) => (
+        {rooms.map((room) => (
           <Grid item xs={12} sm={6} md={4} key={room.id}>
             <Card>
               <CardContent>
@@ -66,11 +78,7 @@ function RoomList() {
                     <RoomIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                     {room.name}
                   </Typography>
-                  <Chip
-                    label={getStatusText(room.status)}
-                    color={getStatusColor(room.status)}
-                    size="small"
-                  />
+                  {getRoomStatusChip(room.status)}
                 </Box>
                 
                 <Typography color="text.secondary" gutterBottom>
@@ -80,7 +88,7 @@ function RoomList() {
                 
                 <Typography color="text.secondary" gutterBottom>
                   <EventIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  类型：{room.type}
+                  类型：{getRoomType(room.type)}
                 </Typography>
 
                 <Box sx={{ mt: 2 }}>
@@ -98,7 +106,7 @@ function RoomList() {
                   variant="contained"
                   fullWidth
                   sx={{ mt: 2 }}
-                  disabled={room.status !== 'available'}
+                  disabled={room.status != 0 }
                   onClick={() => handleBooking(room)}
                 >
                   预约
@@ -108,6 +116,23 @@ function RoomList() {
           </Grid>
         ))}
       </Grid>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={totalCount}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(event) => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        labelRowsPerPage="每页行数"
+        labelDisplayedRows={({ from, to, count }) =>
+          `${from}-${to} 共 ${count} 条`
+        }
+      />
 
       <Dialog
         open={openBooking}
