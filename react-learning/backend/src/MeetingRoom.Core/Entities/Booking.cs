@@ -22,13 +22,21 @@ public class Booking : BaseEntity
 
     public BookingStatus Status { get; set; }
 
-    [SugarColumn(Length = 500)]
-    public string Participants { get; set; }
+    [SugarColumn(IsJson = true)]
+    public List<Participant> Participants { get; set; }
 
     [SugarColumn(IsIgnore = true)]
+    [Navigate(NavigateType.OneToOne, "RoomId")]
     public Room Room { get; set; }
 
     [SugarColumn(IsIgnore = true)]
+    [Navigate(NavigateType.OneToOne, "UserId")]
     public User User { get; set; }
+}
+
+public class Participant
+{
+    public long UserId { get; set; }
+    public string Name { get; set; }
 }
 

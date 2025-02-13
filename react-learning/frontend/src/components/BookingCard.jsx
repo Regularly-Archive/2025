@@ -17,10 +17,9 @@ import { zhCN } from 'date-fns/locale';
 
 const getStatusChip = (status) => {
   const statusConfig = {
-    upcoming: { label: '即将开始', color: 'primary' },
-    ongoing: { label: '进行中', color: 'success' },
-    completed: { label: '已完成', color: 'default' },
-    cancelled: { label: '已取消', color: 'error' },
+    0: { label: '进行中', color: 'success' },
+    1: { label: '已取消', color: 'error' },
+    2: { label: '已完成', color: 'default' },
   };
   const config = statusConfig[status];
   return <Chip label={config.label} color={config.color} size="small" />;
@@ -45,13 +44,12 @@ function BookingCard({ booking, onCancel }) {
 
           <Typography color="text.secondary">
             <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            {format(booking.startTime, 'yyyy年MM月dd日 HH:mm', { locale: zhCN })} - 
-            {format(booking.endTime, 'HH:mm', { locale: zhCN })}
+            {format(new Date(booking.startTime), 'yyyy/MM/dd HH:mm', { locale: zhCN })} - {format(new Date(booking.endTime), 'HH:mm', { locale: zhCN })}
           </Typography>
 
           <Typography color="text.secondary">
             <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            {booking.attendees}
+            {booking.participants.map(x=>x.name).join(', ')}
           </Typography>
 
           {booking.description && (
@@ -61,7 +59,7 @@ function BookingCard({ booking, onCancel }) {
           )}
         </Stack>
 
-        {booking.status === 'upcoming' && onCancel && (
+        {booking.status === 0 && onCancel && (
           <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
             <Button
               variant="outlined"

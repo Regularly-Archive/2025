@@ -9,12 +9,12 @@ public class BookingDTO
     public long RoomId { get; set; }
     public string RoomName { get; set; }
     public long UserId { get; set; }
-    public string Username { get; set; }
+    public string UserName { get; set; }
     public string Title { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public BookingStatus Status { get; set; }
-    public string Participants { get; set; }
+    public List<Participant> Participants { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
@@ -24,7 +24,7 @@ public class CreateBookingDTO
     public string Title { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public string Participants { get; set; }
+    public List<Participant> Participants { get; set; }
 }
 
 public class UpdateBookingDTO
@@ -33,7 +33,7 @@ public class UpdateBookingDTO
     public string Title { get; set; }
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
-    public string Participants { get; set; }
+    public List<Participant> Participants { get; set; }
     public BookingStatus? Status { get; set; }
 }
 
@@ -50,7 +50,7 @@ public class BookingQueryableFilter : IQueryableFilter<Booking>
             .WhereIF(UserId.HasValue, x => x.CreatedBy == UserId.Value.ToString())
             .WhereIF(StartDate.HasValue, x => x.StartTime >= StartDate.Value)
             .WhereIF(EndDate.HasValue, x => x.EndTime <= EndDate.Value)
-            .WhereIF(Status.HasValue, x => x.Status == Status.Value);
+            .WhereIF(Status.HasValue && Status.Value != BookingStatus.All, x => x.Status == Status.Value);
 
         return queryable;
     }

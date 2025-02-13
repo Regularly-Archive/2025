@@ -8,9 +8,9 @@ namespace MeetingRoom.Core.Enums
 {
     public enum BookingStatus
     {
+        All = -1,
         Pending = 0,
-        Confirmed = 1,
-        Cancelled = 2,
-        Completed = 3
+        Cancelled = 1,
+        Completed = 2,
     }
 }

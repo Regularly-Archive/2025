@@ -11,7 +11,6 @@ namespace MeetingRoom.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[AllowAnonymous]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -20,6 +19,7 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<JsonResult> Login([FromBody] UserLoginDTO loginRequest)
     {
@@ -27,6 +27,7 @@ public class UsersController : ControllerBase
         return ApiResult.Success(loginResult);
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<JsonResult> Register([FromBody] UserRegisterDTO registerRequest)
     {

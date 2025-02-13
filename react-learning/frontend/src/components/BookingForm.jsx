@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useAuth } from '../contexts/AuthContext';
+import { post } from '../utils/request'; // 引入 POST 方法
 
 function BookingForm({ room, onClose }) {
   const { user } = useAuth();
@@ -33,13 +34,12 @@ function BookingForm({ room, onClose }) {
     }
 
     if (formData.startTime >= formData.endTime) {
-      setError('结束时间必须晚于开始时间');
+      setError('结束时间必须大于开始时间');
       return;
     }
 
     try {
-      // 这里应该调用实际的预约 API
-      console.log('预约信息：', {
+      await post('api/bookings/', {
         roomId: room.id,
         userId: user.id,
         ...formData,

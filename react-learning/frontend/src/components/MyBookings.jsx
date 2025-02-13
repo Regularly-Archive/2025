@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Tabs,
@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TablePagination
 } from '@mui/material';
 import {
   Event as EventIcon,
@@ -24,6 +25,8 @@ import {
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import BookingCard from './BookingCard';
+import { get } from '../utils/request'; 
+import Pagination from '@mui/material/Pagination';
 
 // 模拟预约数据
 const mockBookings = [
@@ -63,10 +66,36 @@ const mockBookings = [
   // 更多预约记录...
 ];
 
-function MyBookings() {
-  const [tabValue, setTabValue] = useState('upcoming');
+const MyBookings = () => {
+  const [bookings, setBookings] = useState([]);
+  const [pageIndex, setPageIndex] = useState(1); 
+  const [pageSize, setPageSize] = useState(10); 
+  const [totalCount, setTotalCount] = useState(0); 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [tabValue, setTabValue] = useState('whole');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [tabValue, pageIndex]); // 依赖 tabValue 和 pageIndex
+
+  const fetchBookings = async () => {
+    try {
+      const statusMap = {
+        whole: -1,
+        pending: 0,
+        completed: 2,
+        cancelled: 1,
+      };
+      const response = await get(`api/bookings/paginate?pageIndex=${pageIndex}&pageSize=${pageSize}&status=${statusMap[tabValue]}`);
+      setBookings(response.data.rows);
+      setTotalCount(response.data.totalCount);
+    } catch (error) {
+      console.error('获取预约记录失败：', error);
+    }
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -99,8 +128,6 @@ function MyBookings() {
     return <Chip label={config.label} color={config.color} size="small" />;
   };
 
-  const filteredBookings = mockBookings.filter(booking => booking.status === tabValue);
-
   return (
     <Box>
       <Tabs
@@ -108,14 +135,14 @@ function MyBookings() {
         onChange={handleTabChange}
         sx={{ mb: 3 }}
       >
-        <Tab value="upcoming" label="即将开始" />
-        <Tab value="ongoing" label="进行中" />
+        <Tab value="whole" label="全部" />
+        <Tab value="pending" label="进行中" />
         <Tab value="completed" label="已完成" />
         <Tab value="cancelled" label="已取消" />
       </Tabs>
 
       <Grid container spacing={3}>
-        {filteredBookings.map((booking) => (
+        {bookings.map((booking) => (
           <Grid item xs={12} sm={6} md={4} key={booking.id}>
             <BookingCard
               key={booking.id}
@@ -125,7 +152,7 @@ function MyBookings() {
           </Grid>
         ))}
 
-        {filteredBookings.length === 0 && (
+        {bookings.length === 0 && (
           <Grid item xs={12}>
             <Box
               sx={{
@@ -143,6 +170,22 @@ function MyBookings() {
           </Grid>
         )}
       </Grid>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={totalCount}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(event) => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        labelRowsPerPage="每页行数"
+        labelDisplayedRows={({ from, to, count }) =>
+          `${from}-${to} 共 ${count} 条`
+        }
+      />
 
       <Dialog
         open={openCancelDialog}

@@ -10,16 +10,17 @@ namespace MeetingRoom.Core.Services
     {
         private readonly IRepository<Booking> _bookingRepository;
         private readonly IRepository<Room> _roomRepository;
-        private readonly IRepository<User> _userRepository;
+        private readonly IUserService _userService;
 
         public BookingService(
             IRepository<Booking> bookingRepository,
             IRepository<Room> roomRepository,
-            IRepository<User> userRepository)
+            IUserService userService
+            )
         {
             _bookingRepository = bookingRepository;
             _roomRepository = roomRepository;
-            _userRepository = userRepository;
+            _userService = userService;
         }
 
         public async Task<BookingDTO> GetByIdAsync(long id)
@@ -30,7 +31,14 @@ namespace MeetingRoom.Core.Services
 
         public async Task<PagedResult<BookingDTO>> GetPagedListAsync(QueryParameter<Booking, BookingQueryableFilter> queryParameter)
         {
-            var result = await _bookingRepository.PaginateAsync(queryParameter);
+            var currentUser = await _userService.GetCurrentUserAsync();
+            var queryable = _bookingRepository.SqlSugarClient
+                .Queryable<Booking>()
+                .Includes<User>(x => x.User)
+                .Includes<Room>(x => x.Room)
+                .WhereIF(currentUser.Role == UserRole.User, x=> x.UserId == currentUser.Id);;
+
+            var result = await _bookingRepository.PaginateAsync(queryParameter,queryable);
             return new PagedResult<BookingDTO>
             {
                 Rows = result.Rows.Adapt<List<BookingDTO>>(),
@@ -58,17 +66,17 @@ namespace MeetingRoom.Core.Services
                 throw new BusinessException("不能预约过去的时间");
 
             if (!await IsTimeSlotAvailableAsync(dto.RoomId, dto.StartTime, dto.EndTime))
-
                 throw new BusinessException("该时间段已被预约");
 
+            var currentUser = await _userService.GetCurrentUserAsync();
             var booking = new Booking
             {
                 RoomId = dto.RoomId,
-                UserId = -1, // 从当前用户上下文获取
+                UserId = currentUser.Id,
                 Title = dto.Title,
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
-                Status = BookingStatus.Confirmed,
+                Status = BookingStatus.Pending,
                 Participants = dto.Participants,
                 CreatedAt = DateTime.Now
             };
@@ -110,7 +118,7 @@ namespace MeetingRoom.Core.Services
             if (!string.IsNullOrEmpty(dto.Title))
                 booking.Title = dto.Title;
 
-            if (!string.IsNullOrEmpty(dto.Participants))
+            if (dto.Participants.Any())
                 booking.Participants = dto.Participants;
 
             if (dto.Status.HasValue)
@@ -123,16 +131,16 @@ namespace MeetingRoom.Core.Services
 
         public async Task<bool> CancelAsync(long id)
         {
-            var userId = 0L;
+            var currentUser = await _userService.GetCurrentUserAsync();
             var booking = await _bookingRepository.GetAsync(id);
             if (booking == null)
                 throw new BusinessException("预约记录不存在");
 
-            if (booking.UserId != userId)
+            if (booking.UserId != currentUser.Id)
                 throw new BusinessException("只能取消自己的预约");
 
-            if (booking.Status != BookingStatus.Confirmed)
-                throw new BusinessException("只能取消已确认的预约");
+            if (booking.Status != BookingStatus.Pending)
+                throw new BusinessException("只能取消进行中的预约");
 
             if (booking.StartTime <= DateTime.Now)
                 throw new BusinessException("不能取消已开始的预约");
@@ -141,6 +149,26 @@ namespace MeetingRoom.Core.Services
             booking.UpdatedAt = DateTime.Now;
 
             await _bookingRepository.UpdateAsync(booking);
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(long id)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync();
+            var booking = await _bookingRepository.GetAsync(id);
+            if (booking == null)
+                throw new BusinessException("预约记录不存在");
+
+            if (booking.UserId != currentUser.Id)
+                throw new BusinessException("只能删除自己的预约");
+
+            if (booking.Status != BookingStatus.Pending)
+                throw new BusinessException("只能删除进行中的预约");
+
+            if (booking.StartTime <= DateTime.Now)
+                throw new BusinessException("不能取消已开始的预约");
+
+            await _bookingRepository.DeleteAsync(id);
             return true;
         }
 
@@ -169,13 +197,12 @@ namespace MeetingRoom.Core.Services
                 RoomId = booking.RoomId,
                 RoomName = booking.Room?.Name,
                 UserId = booking.UserId,
-                Username = booking.User?.UserName,
+                UserName = booking.User?.NickName,
                 Title = booking.Title,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
                 Status = booking.Status,
                 Participants = booking.Participants,
-                CreatedAt = booking.CreatedAt
             };
         }
     }
