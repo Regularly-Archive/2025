@@ -140,14 +140,14 @@ namespace MeetingRoom.Infrastructure.Repositories
             if (isCreate)
             {
                 entity.CreatedAt = DateTime.Now;
-                entity.CreatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Admin";
+                entity.CreatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
                 entity.UpdatedAt = entity.CreatedAt;
                 entity.UpdatedBy = entity.CreatedBy;
             }
             else
             {
                 entity.UpdatedAt = DateTime.Now;
-                entity.UpdatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Admin";
+                entity.UpdatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
             }
         }
 

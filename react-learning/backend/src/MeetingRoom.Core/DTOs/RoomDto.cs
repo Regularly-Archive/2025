@@ -15,7 +15,7 @@ public class RoomQueryableFilter : IQueryableFilter<Room>
     public ISugarQueryable<Room> Apply(ISugarQueryable<Room> queryable)
     {
         queryable = queryable
-            .WhereIF(!string.IsNullOrEmpty(Keyword), x => x.Name.IndexOf(Keyword) != -1 || x.Description.IndexOf(Keyword) != -1)
+            .WhereIF(!string.IsNullOrEmpty(Keyword), x => x.Name.Contains(Keyword) || x.Description.Contains(Keyword))
             .WhereIF(Status.HasValue, x => x.Status == Status.Value)
             .WhereIF(Type.HasValue, x => x.Type == Type.Value);
 

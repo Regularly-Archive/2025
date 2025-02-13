@@ -6,6 +6,7 @@ using SqlSugar;
 
 namespace MeetingRoom.Core.Entities;
 
+[SugarTable("users")]
 public class User : BaseEntity
 {
     [SugarColumn(Length = 50)]

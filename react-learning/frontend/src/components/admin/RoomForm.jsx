@@ -12,7 +12,9 @@ import {
   Stack,
   Autocomplete,
   Chip,
+  Typography,
 } from '@mui/material';
+import { TimePicker } from '@mui/x-date-pickers';
 
 const facilityOptions = [
   '投影仪',
@@ -22,25 +24,33 @@ const facilityOptions = [
   'LED大屏',
   'WiFi',
   '电话会议设备',
+  '电视'
 ];
 
 const roomTypes = [
-  '普通会议室',
-  '多媒体会议室',
-  '培训室',
-  '董事会议室',
+  {
+    value: 0,
+    label: '普通会议室'
+  },
+  {
+    value: 1,
+    label: '多媒体会议室'
+  }
 ];
 
 function RoomForm({ room, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     name: '',
-    capacity: '',
-    type: '',
-    status: 'available',
+    capacity: 0,
+    type: 0,
+    status: 0,
     facilities: [],
-    availableTime: '',
-    description: '',
+    availableStartTime: '',
+    availableEndTime: '',
+    description: ''
   });
+
+  const [timeError, setTimeError] = useState('');
 
   useEffect(() => {
     if (room) {
@@ -50,8 +60,13 @@ function RoomForm({ room, onSave, onCancel }) {
         type: room.type,
         status: room.status,
         facilities: room.facilities,
-        availableTime: room.availableTime,
+        availableStartTime: room.availableStartTime,
+        availableEndTime: room.availableEndTime,
         description: room.description || '',
+        createdBy: room.createdBy,
+        createdAt: room.createdAt,
+        updatedBy: room.updatedBy,
+        updatedAt: room.updatedAt
       });
     }
   }, [room]);
@@ -63,8 +78,25 @@ function RoomForm({ room, onSave, onCancel }) {
     });
   };
 
+  const validateTimes = (startTime, endTime) => {
+    if (!startTime || !endTime) return true;
+    
+    const start = new Date(`2024-01-01T${startTime}`);
+    const end = new Date(`2024-01-01T${endTime}`);
+    return start < end;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // 验证时间
+    if (!validateTimes(formData.availableStartTime, formData.availableEndTime)) {
+      setTimeError('结束时间必须晚于开始时间');
+      return;
+    }
+    setTimeError('');
+
+    formData.status = parseInt(formData.status);
     onSave(formData);
   };
 
@@ -100,9 +132,9 @@ function RoomForm({ room, onSave, onCancel }) {
               onChange={handleChange}
               label="会议室类型"
             >
-              {roomTypes.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
+              {roomTypes.map((item) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
                 </MenuItem>
               ))}
             </Select>
@@ -116,8 +148,8 @@ function RoomForm({ room, onSave, onCancel }) {
               onChange={handleChange}
               label="状态"
             >
-              <MenuItem value="available">可用</MenuItem>
-              <MenuItem value="maintenance">维护中</MenuItem>
+              <MenuItem value="0">可用</MenuItem>
+              <MenuItem value="1">维护中</MenuItem>
             </Select>
           </FormControl>
 
@@ -146,14 +178,45 @@ function RoomForm({ room, onSave, onCancel }) {
             )}
           />
 
-          <TextField
-            name="availableTime"
-            label="可用时间"
-            value={formData.availableTime}
-            onChange={handleChange}
-            required
-            placeholder="例如：09:00-18:00"
+          <TimePicker
+            label="可用起始时间"
+            value={formData.availableStartTime ? new Date(`2024-01-01T${formData.availableStartTime}`) : null}
+            onChange={(newValue) => {
+              const timeString = newValue ? newValue.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              }).slice(0, 5) : '';
+              setFormData({ ...formData, availableStartTime: timeString });
+              setTimeError(''); // 清除错误信息
+            }}
+            views={['hours', 'minutes']}
+            ampm={false}
+            sx={{ width: '100%' }}
           />
+
+          <TimePicker
+            label="可用结束时间"
+            value={formData.availableEndTime ? new Date(`2024-01-01T${formData.availableEndTime}`) : null}
+            onChange={(newValue) => {
+              const timeString = newValue ? newValue.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              }).slice(0, 5) : '';
+              setFormData({ ...formData, availableEndTime: timeString });
+              setTimeError(''); // 清除错误信息
+            }}
+            views={['hours', 'minutes']}
+            ampm={false}
+            sx={{ width: '100%' }}
+          />
+
+          {timeError && (
+            <Typography color="error" variant="caption">
+              {timeError}
+            </Typography>
+          )}
 
           <TextField
             name="description"

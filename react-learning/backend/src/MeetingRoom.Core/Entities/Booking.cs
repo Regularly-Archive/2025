@@ -5,6 +5,8 @@ using MeetingRoom.Infrastructure.Models;
 using SqlSugar;
 
 namespace MeetingRoom.Core.Entities;
+
+[SugarTable("bookings")]
 public class Booking : BaseEntity
 {
     public long RoomId { get; set; }

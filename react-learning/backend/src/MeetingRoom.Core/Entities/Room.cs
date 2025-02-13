@@ -6,6 +6,7 @@ using SqlSugar;
 
 namespace MeetingRoom.Core.Entities;
 
+[SugarTable("rooms")]
 public class Room : BaseEntity
 {
     [SugarColumn(Length = 50)]
@@ -24,9 +25,6 @@ public class Room : BaseEntity
 
     public TimeSpan AvailableEndTime { get; set; }
 
-    [SugarColumn(ColumnDataType = "varchar(15)[]")]
+    [SugarColumn(IsJson = true)]
     public List<string> Facilities { get; set; }
-
-    [SugarColumn(IsIgnore = true)]
-    public List<Booking> Bookings { get; set; }
 }

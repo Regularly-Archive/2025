@@ -19,7 +19,7 @@ function Layout() {
           <Route 
             path="/admin/*" 
             element={
-              user?.role === 'admin' ? <Admin /> : <Navigate to="/dashboard" />
+              user?.role === 1 ? <Admin /> : <Navigate to="/dashboard" />
             } 
           />
           <Route path="/" element={<Navigate to="/dashboard" />} />

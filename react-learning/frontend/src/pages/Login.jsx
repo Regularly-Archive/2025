@@ -19,14 +19,17 @@ function Login() {
     password: ''
   });
   const [error, setError] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
+    const token = localStorage.getItem('token');
+    if (token && !isRedirecting) {
+      setIsRedirecting(true);
       navigate('/dashboard');
     }
-  }, [navigate]);
+  }, [navigate, isRedirecting]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

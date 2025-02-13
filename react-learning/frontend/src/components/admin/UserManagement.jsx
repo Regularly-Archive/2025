@@ -80,17 +80,18 @@ function UserManagement() {
           ...userData,
           id: selectedUser.id
         });
-        showMessage(res.message, 'success');
       } else {
         res = await post('api/users/register', userData);
+      }
+      if (res.code == 200) {
+        setOpenForm(false);
+        fetchUsers(page, rowsPerPage);
         showMessage(res.message, 'success');
       }
       fetchUsers(page, rowsPerPage);
     } catch (error) {
     } finally {
       setLoading(false);
-      fetchUsers(page, rowsPerPage);
-      setOpenForm(!(res.code == 200));
     }
   };
 

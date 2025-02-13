@@ -37,7 +37,7 @@ function RoomManagement() {
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
 
-  // 获取会议室列表数据
+
   const fetchRooms = async (pageIndex, pageSize) => {
     try {
       setLoading(true);
@@ -84,8 +84,8 @@ function RoomManagement() {
         res = await post('api/rooms', roomData);
       }
       if (res.code === 200) {
-        fetchRooms(page, rowsPerPage);
         setOpenForm(false);
+        fetchRooms(page, rowsPerPage);
       }
     } catch (error) {
       console.error(error);
@@ -131,7 +131,7 @@ function RoomManagement() {
     try {
       setLoading(true);
       const response = await get(`api/rooms/${roomId}`);
-      if (response.data) {
+      if (response.data && response.code == 200) {
         setSelectedRoom(response.data);
         setOpenForm(true);
       }
@@ -144,17 +144,26 @@ function RoomManagement() {
 
   const getStatusChip = (status) => {
     const statusConfig = {
-      available: { label: '可用', color: 'success' },
-      occupied: { label: '占用', color: 'error' },
-      maintenance: { label: '维护中', color: 'warning' },
+      0: { label: '可用', color: 'success' },
+      1: { label: '维护中', color: 'warning' },
+      2: { label: '占用', color: 'error' },
     };
     const config = statusConfig[status];
     return <Chip label={config.label} color={config.color} size="small" />;
   };
 
+  const getTypeChip = (type) => {
+    var typeConfig = {
+      0: '普通会议室',
+      1: '多媒体会议室'
+    }
+
+    return typeConfig[type]
+  }
+
   return (
     <Box>
-            <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2 }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -210,7 +219,7 @@ function RoomManagement() {
                 <TableRow key={room.id}>
                   <TableCell>{room.name}</TableCell>
                   <TableCell>{room.capacity}人</TableCell>
-                  <TableCell>{room.type}</TableCell>
+                  <TableCell>{getTypeChip(room.type)}</TableCell>
                   <TableCell>
                     {room.facilities.map((facility) => (
                       <Chip
@@ -221,7 +230,7 @@ function RoomManagement() {
                       />
                     ))}
                   </TableCell>
-                  <TableCell>{room.availableTime}</TableCell>
+                  <TableCell>{room.availableStartTime}-{room.availableEndTime}</TableCell>
                   <TableCell>{getStatusChip(room.status)}</TableCell>
                   <TableCell>
                     <IconButton

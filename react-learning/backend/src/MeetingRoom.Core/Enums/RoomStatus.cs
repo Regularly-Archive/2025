@@ -9,7 +9,6 @@ namespace MeetingRoom.Core.Enums
     public enum RoomStatus
     {
         Available = 0,
-        Occupied = 1,
-        Maintenance = 2,
+        Maintenance = 1,
     }
 }
