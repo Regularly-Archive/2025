@@ -27,7 +27,7 @@ const getStatusChip = (status) => {
 
 function BookingCard({ booking, onCancel, onEdit }) {
   return (
-    <Card>
+    <Card sx={{ minHeight: '200px' }}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h6">
@@ -61,24 +61,23 @@ function BookingCard({ booking, onCancel, onEdit }) {
           )}
         </Stack>
 
-        {booking.status === 0 && onCancel && onEdit && (
-          <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => onEdit(booking)}
-            >
-              修改
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={() => onCancel(booking)}
-            >
-              取消
-            </Button>
-          </Box>
-        )}
+        <Box sx={{ mt: 2, display: booking.status === 0 && onCancel && onEdit ? 'flex' : 'none', gap: 1, justifyContent: 'flex-end' }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => onEdit(booking)}
+          >
+            修改
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => onCancel(booking)}
+          >
+            取消
+          </Button>
+        </Box>
+        {!(booking.status === 0 && onCancel && onEdit) && <Box sx={{ height: '48px' }} />}
       </CardContent>
     </Card>
   );

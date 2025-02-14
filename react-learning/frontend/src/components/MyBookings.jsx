@@ -25,7 +25,7 @@ import {
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import BookingCard from './BookingCard';
-import { get } from '../utils/request'; 
+import { get, put } from '../utils/request'; 
 import BookingForm from './BookingForm';
 
 
@@ -72,10 +72,11 @@ const MyBookings = () => {
 
   const confirmCancelBooking = async () => {
     try {
-      // 这里应该调用实际的取消预约 API
-      console.log('取消预约：', selectedBooking.id);
+
+      await put(`api/Bookings/${selectedBooking.id}/cancel`);
+      console.log('取消预约成功：', selectedBooking.id);
       setOpenCancelDialog(false);
-      // 刷新预约列表
+      await fetchBookings();
     } catch (err) {
       console.error('取消预约失败：', err);
     }
@@ -84,17 +85,6 @@ const MyBookings = () => {
   const handleEditBooking = (booking) => {
     setSelectedBooking(booking);
     setOpenEditDialog(true);
-  };
-
-  const getStatusChip = (status) => {
-    const statusConfig = {
-      upcoming: { label: '即将开始', color: 'primary' },
-      ongoing: { label: '进行中', color: 'success' },
-      completed: { label: '已完成', color: 'default' },
-      cancelled: { label: '已取消', color: 'error' },
-    };
-    const config = statusConfig[status];
-    return <Chip label={config.label} color={config.color} size="small" />;
   };
 
   return (
@@ -189,12 +179,12 @@ const MyBookings = () => {
       >
         <BookingForm
           room={selectedBooking?.room}
+          bookingData={selectedBooking}
           onClose={() => setOpenEditDialog(false)}
           onConfirm={async () => {
             setOpenEditDialog(false)
             await fetchBookings()
           }}
-          bookingData={selectedBooking}
         />
       </Dialog>
     </Box>

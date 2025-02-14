@@ -14,6 +14,8 @@ import {
   MeetingRoom as RoomIcon,
   Group as GroupIcon,
   Event as EventIcon,
+  AccessTime as AccessTimeIcon,
+  AccessTime
 } from '@mui/icons-material';
 import BookingForm from './BookingForm';
 import { get } from '../utils/request';
@@ -83,12 +85,17 @@ function RoomList() {
                 
                 <Typography color="text.secondary" gutterBottom>
                   <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  容纳人数：{room.capacity}人
+                  会议室容量：{room.capacity}人
                 </Typography>
                 
                 <Typography color="text.secondary" gutterBottom>
                   <EventIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  类型：{getRoomType(room.type)}
+                  会议室类型：{getRoomType(room.type)}
+                </Typography>
+
+                <Typography color="text.secondary" gutterBottom>
+                  <AccessTimeIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  可用时间：{room.availableStartTime} - {room.availableEndTime}
                 </Typography>
 
                 <Box sx={{ mt: 2 }}>
@@ -143,6 +150,7 @@ function RoomList() {
         <BookingForm
           room={selectedRoom}
           onClose={() => setOpenBooking(false)}
+          onConfirm={() => setOpenBooking(false)}
         />
       </Dialog>
     </Box>

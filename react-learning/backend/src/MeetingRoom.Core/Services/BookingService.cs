@@ -3,6 +3,7 @@ using MeetingRoom.Core.Entities;
 using MeetingRoom.Core.Enums;
 using MeetingRoom.Infrastructure.Models;
 using MeetingRoom.Infrastructure.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace MeetingRoom.Core.Services
 {
@@ -55,17 +56,20 @@ namespace MeetingRoom.Core.Services
             if (room.Status != RoomStatus.Available)
                 throw new BusinessException("当前会议室不可用");
 
-            if (dto.StartTime.TimeOfDay < room.AvailableStartTime ||
-                dto.EndTime.TimeOfDay > room.AvailableEndTime)
+            var startTime = dto.StartTime.ToLocalTime().TimeOfDay;
+            var endTime = dto.EndTime.ToLocalTime().TimeOfDay;
+
+            if (startTime < room.AvailableStartTime ||
+                endTime > room.AvailableEndTime)
                 throw new BusinessException("预约时间不在会议室开放时间范围内");
 
-            if (dto.StartTime >= dto.EndTime)
+            if (startTime >= endTime)
                 throw new BusinessException("结束时间必须晚于开始时间");
 
-            if (dto.StartTime < DateTime.Now)
+            if (dto.StartTime.ToLocalTime() < DateTime.Now)
                 throw new BusinessException("不能预约过去的时间");
 
-            if (!await IsTimeSlotAvailableAsync(dto.RoomId, dto.StartTime, dto.EndTime))
+            if (!await IsTimeSlotAvailableAsync(dto.RoomId, dto.StartTime.ToLocalTime(), dto.EndTime.ToLocalTime()))
                 throw new BusinessException("该时间段已被预约");
 
             var currentUser = await _userService.GetCurrentUserAsync();
@@ -74,8 +78,8 @@ namespace MeetingRoom.Core.Services
                 RoomId = dto.RoomId,
                 UserId = currentUser.Id,
                 Title = dto.Title,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
+                StartTime = dto.StartTime.ToLocalTime(),
+                EndTime = dto.EndTime.ToLocalTime(),
                 Status = BookingStatus.Pending,
                 Participants = dto.Participants,
                 CreatedAt = DateTime.Now

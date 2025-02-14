@@ -18,7 +18,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { post, put, get } from '../utils/request';
 import UserSelector from './UserSelector'; 
 
-function BookingForm({ room, bookingData, onClose, onConfirm }) {
+function BookingForm({ room, bookingData, onClose, onConfirm}) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     id: bookingData ? bookingData.id : '',
@@ -73,7 +73,7 @@ function BookingForm({ room, bookingData, onClose, onConfirm }) {
           ...formData,
         });
       }
-      onConfirm()
+      if (onConfirm) onConfirm()
     } catch (err) {
       console.log(err)
       setError('预约失败，请重试');

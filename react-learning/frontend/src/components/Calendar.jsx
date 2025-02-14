@@ -75,7 +75,6 @@ const mockBookings = [
 function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // 自定义事件样式
   const eventStyleGetter = (event) => {
     const style = {
       backgroundColor: '#1976d2',
@@ -88,7 +87,6 @@ function Calendar() {
     return { style };
   };
 
-  // 处理事件点击
   const handleEventClick = (event) => {
     setSelectedEvent(event);
   };
