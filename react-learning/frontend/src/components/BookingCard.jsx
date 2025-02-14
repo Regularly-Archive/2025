@@ -49,7 +49,9 @@ function BookingCard({ booking, onCancel, onEdit }) {
 
           <Typography color="text.secondary">
             <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            {booking.participants.map(x => x.name).join(', ')}
+            {
+              booking.participants && booking.participants.length > 0 ? booking.participants.map(x => x.nickName).join(', ') : ''
+            }
           </Typography>
 
           {booking.description && (

@@ -100,7 +100,10 @@ namespace MeetingRoom.Core.Services
             if (dto.StartTime.HasValue || dto.EndTime.HasValue)
             {
                 var startTime = dto.StartTime ?? booking.StartTime;
+                startTime = startTime.ToLocalTime();
+
                 var endTime = dto.EndTime ?? booking.EndTime;
+                endTime = endTime.ToLocalTime();
 
                 if (startTime >= endTime)
                     throw new BusinessException("结束时间必须晚于开始时间");

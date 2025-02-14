@@ -43,7 +43,7 @@ const MyBookings = () => {
 
   useEffect(() => {
     fetchBookings();
-  }, [tabValue, pageIndex]); // 依赖 tabValue 和 pageIndex
+  }, [tabValue, pageIndex, pageSize]);
 
   const fetchBookings = async () => {
     try {
@@ -190,6 +190,10 @@ const MyBookings = () => {
         <BookingForm
           room={selectedBooking?.room}
           onClose={() => setOpenEditDialog(false)}
+          onConfirm={async () => {
+            setOpenEditDialog(false)
+            await fetchBookings()
+          }}
           bookingData={selectedBooking}
         />
       </Dialog>

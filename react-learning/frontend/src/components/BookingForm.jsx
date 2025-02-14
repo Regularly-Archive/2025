@@ -16,17 +16,19 @@ import FormControl from '@mui/material/FormControl';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useAuth } from '../contexts/AuthContext';
 import { post, put, get } from '../utils/request';
+import UserSelector from './UserSelector'; 
 
-function BookingForm({ room, onClose, bookingData }) {
+function BookingForm({ room, bookingData, onClose, onConfirm }) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
+    id: bookingData ? bookingData.id : '',
     startTime: new Date(bookingData?.startTime) || null,
     endTime: new Date(bookingData?.endTime) || null,
     title: bookingData?.title || '',
-    attendees: bookingData?.attendees || '',
+    participants: bookingData?.participants || [],
     description: bookingData?.description || '',
     roomId: bookingData ? bookingData.roomId : room.id,
-    userId: bookingData ? bookingData.userId: user.id
+    userId: bookingData ? bookingData.userId : user.id
   });
   const [error, setError] = useState('');
   const [rooms, setRooms] = useState([]);
@@ -62,8 +64,6 @@ function BookingForm({ room, onClose, bookingData }) {
     try {
       if (bookingData) {
         await put(`api/bookings/`, {
-          roomId: room.id,
-          userId: user.id,
           ...formData,
         });
       } else {
@@ -73,10 +73,26 @@ function BookingForm({ room, onClose, bookingData }) {
           ...formData,
         });
       }
-      onClose();
+      onConfirm()
     } catch (err) {
+      console.log(err)
       setError('预约失败，请重试');
     }
+  };
+
+  const handleParticipantsChange = (selectedUsers) => {
+    const participants = selectedUsers.map(x => {
+      return {
+        id: x.id,
+        nickName: x.nickName
+      }
+    })
+
+    const newFormData = {
+      ...formData,
+    }
+    newFormData.participants = participants
+    setFormData(newFormData)
   };
 
   return (
@@ -88,21 +104,21 @@ function BookingForm({ room, onClose, bookingData }) {
         <Box sx={{ mt: 2 }}>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <FormControl fullWidth>
-          <InputLabel>会议室</InputLabel>
-          <Select
-            label="会议室"
-            value={formData.roomId || ''}
-            onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
-            disabled={!!room}
-            fullWidth
-            sx={{ mb: 2 }}
-          >
-            {rooms.map((room) => (
-              <MenuItem key={room.id} value={room.id}>
-                {room.name}
-              </MenuItem>
-            ))}
-          </Select>
+            <InputLabel>会议室</InputLabel>
+            <Select
+              label="会议室"
+              value={formData.roomId || ''}
+              onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
+              disabled={!!room}
+              fullWidth
+              sx={{ mb: 2 }}
+            >
+              {rooms.map((room) => (
+                <MenuItem key={room.id} value={room.id}>
+                  {room.name}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
 
           <TextField
@@ -116,25 +132,32 @@ function BookingForm({ room, onClose, bookingData }) {
 
           <DateTimePicker
             label="开始时间"
-            value={formData.startTime}
-            onChange={(newValue) => setFormData({ ...formData, startTime: newValue })}
+            value={new Date(formData.startTime)}
+            onChange={(newValue) => {
+              setFormData({ ...formData, startTime: newValue.toISOString() })
+            }}
             sx={{ mb: 2, width: '100%' }}
+            ampm={false}
+            format="yyyy/MM/dd HH:mm"
+            timezone="UTC"
           />
 
           <DateTimePicker
             label="结束时间"
-            value={formData.endTime}
-            onChange={(newValue) => setFormData({ ...formData, endTime: newValue })}
+            value={new Date(formData.endTime)}
+            onChange={(newValue) => {
+              setFormData({ ...formData, endTime: newValue.toISOString() })
+            }}
             sx={{ mb: 2, width: '100%' }}
+            ampm={false}
+            format="yyyy/MM/dd HH:mm"
+            timezone="UTC"
           />
-          <TextField
-            fullWidth
-            label="参会人员"
-            value={formData.attendees}
-            onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
-            helperText="多个参会人请用逗号分隔"
-            sx={{ mb: 2 }}
-          />
+
+          <div style={{ marginBottom: '16px' }}>
+            <UserSelector placeholder="参会人员" onConfirm={handleParticipantsChange} initialUsers={formData.participants || []} />
+          </div>
+          
 
           <TextField
             fullWidth

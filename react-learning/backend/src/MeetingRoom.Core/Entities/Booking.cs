@@ -2,6 +2,7 @@ using System;
 using MeetingRoom.Core.Entities;
 using MeetingRoom.Core.Enums;
 using MeetingRoom.Infrastructure.Models;
+using Newtonsoft.Json;
 using SqlSugar;
 
 namespace MeetingRoom.Core.Entities;
@@ -36,7 +37,10 @@ public class Booking : BaseEntity
 
 public class Participant
 {
-    public long UserId { get; set; }
-    public string Name { get; set; }
+    [JsonProperty("id")]
+    public long Id { get; set; }
+
+    [JsonProperty("nickName")]
+    public string NickName { get; set; }
 }
 
