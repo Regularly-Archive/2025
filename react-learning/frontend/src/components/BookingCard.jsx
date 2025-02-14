@@ -25,7 +25,7 @@ const getStatusChip = (status) => {
   return <Chip label={config.label} color={config.color} size="small" />;
 };
 
-function BookingCard({ booking, onCancel }) {
+function BookingCard({ booking, onCancel, onEdit }) {
   return (
     <Card>
       <CardContent>
@@ -49,7 +49,7 @@ function BookingCard({ booking, onCancel }) {
 
           <Typography color="text.secondary">
             <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            {booking.participants.map(x=>x.name).join(', ')}
+            {booking.participants.map(x => x.name).join(', ')}
           </Typography>
 
           {booking.description && (
@@ -59,14 +59,21 @@ function BookingCard({ booking, onCancel }) {
           )}
         </Stack>
 
-        {booking.status === 0 && onCancel && (
+        {booking.status === 0 && onCancel && onEdit && (
           <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => onEdit(booking)}
+            >
+              修改
+            </Button>
             <Button
               variant="outlined"
               color="error"
               onClick={() => onCancel(booking)}
             >
-              取消预约
+              取消
             </Button>
           </Box>
         )}

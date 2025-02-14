@@ -26,45 +26,8 @@ import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import BookingCard from './BookingCard';
 import { get } from '../utils/request'; 
-import Pagination from '@mui/material/Pagination';
+import BookingForm from './BookingForm';
 
-// 模拟预约数据
-const mockBookings = [
-  {
-    id: 1,
-    roomId: 1,
-    roomName: '会议室 A',
-    title: '产品评审会议',
-    startTime: new Date('2024-03-20T10:00:00'),
-    endTime: new Date('2024-03-20T11:30:00'),
-    attendees: '张三, 李四, 王五',
-    status: 'upcoming', // upcoming, ongoing, completed, cancelled
-    description: '讨论新产品功能特性',
-  },
-  {
-    id: 2,
-    roomId: 2,
-    roomName: '会议室 B',
-    title: '团队周会',
-    startTime: new Date('2024-03-18T14:00:00'),
-    endTime: new Date('2024-03-18T15:00:00'),
-    attendees: '整个开发团队',
-    status: 'completed',
-    description: '回顾本周工作进展',
-  },
-  {
-    id: 3,
-    roomId: 2,
-    roomName: '会议室 B',
-    title: '团队周会',
-    startTime: new Date('2024-03-18T14:00:00'),
-    endTime: new Date('2024-03-18T15:00:00'),
-    attendees: '整个开发团队',
-    status: 'upcoming',
-    description: '回顾本周工作进展',
-  }
-  // 更多预约记录...
-];
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -76,6 +39,7 @@ const MyBookings = () => {
   const [tabValue, setTabValue] = useState('whole');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -117,6 +81,11 @@ const MyBookings = () => {
     }
   };
 
+  const handleEditBooking = (booking) => {
+    setSelectedBooking(booking);
+    setOpenEditDialog(true);
+  };
+
   const getStatusChip = (status) => {
     const statusConfig = {
       upcoming: { label: '即将开始', color: 'primary' },
@@ -148,6 +117,7 @@ const MyBookings = () => {
               key={booking.id}
               booking={booking}
               onCancel={handleCancelBooking}
+              onEdit={handleEditBooking}
             />
           </Grid>
         ))}
@@ -209,6 +179,19 @@ const MyBookings = () => {
             确认取消
           </Button>
         </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <BookingForm
+          room={selectedBooking?.room}
+          onClose={() => setOpenEditDialog(false)}
+          bookingData={selectedBooking}
+        />
       </Dialog>
     </Box>
   );

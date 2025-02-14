@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DialogTitle,
   DialogContent,
@@ -8,21 +8,42 @@ import {
   Box,
   Typography,
   Alert,
+  Select,
+  MenuItem,
+  InputLabel
 } from '@mui/material';
+import FormControl from '@mui/material/FormControl';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useAuth } from '../contexts/AuthContext';
-import { post } from '../utils/request'; // 引入 POST 方法
+import { post, put, get } from '../utils/request';
 
-function BookingForm({ room, onClose }) {
+function BookingForm({ room, onClose, bookingData }) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
-    startTime: null,
-    endTime: null,
-    title: '',
-    attendees: '',
-    description: '',
+    startTime: new Date(bookingData?.startTime) || null,
+    endTime: new Date(bookingData?.endTime) || null,
+    title: bookingData?.title || '',
+    attendees: bookingData?.attendees || '',
+    description: bookingData?.description || '',
+    roomId: bookingData ? bookingData.roomId : room.id,
+    userId: bookingData ? bookingData.userId: user.id
   });
   const [error, setError] = useState('');
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await get('api/rooms/list?status=0');
+        setRooms(response.data);
+      } catch (err) {
+        console.error('获取会议室列表失败：', err);
+        setError('获取会议室列表失败，请重试');
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,12 +60,19 @@ function BookingForm({ room, onClose }) {
     }
 
     try {
-      await post('api/bookings/', {
-        roomId: room.id,
-        userId: user.id,
-        ...formData,
-      });
-      
+      if (bookingData) {
+        await put(`api/bookings/`, {
+          roomId: room.id,
+          userId: user.id,
+          ...formData,
+        });
+      } else {
+        await post('api/bookings/', {
+          roomId: room.id,
+          userId: user.id,
+          ...formData,
+        });
+      }
       onClose();
     } catch (err) {
       setError('预约失败，请重试');
@@ -54,25 +82,28 @@ function BookingForm({ room, onClose }) {
   return (
     <form onSubmit={handleSubmit}>
       <DialogTitle>
-        预约 {room?.name}
+        {bookingData ? '修改预约' : `预约 - ${room?.name}`}
       </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          
-          <DateTimePicker
-            label="开始时间"
-            value={formData.startTime}
-            onChange={(newValue) => setFormData({ ...formData, startTime: newValue })}
-            sx={{ mb: 2, width: '100%' }}
-          />
-          
-          <DateTimePicker
-            label="结束时间"
-            value={formData.endTime}
-            onChange={(newValue) => setFormData({ ...formData, endTime: newValue })}
-            sx={{ mb: 2, width: '100%' }}
-          />
+          <FormControl fullWidth>
+          <InputLabel>会议室</InputLabel>
+          <Select
+            label="会议室"
+            value={formData.roomId || ''}
+            onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
+            disabled={!!room}
+            fullWidth
+            sx={{ mb: 2 }}
+          >
+            {rooms.map((room) => (
+              <MenuItem key={room.id} value={room.id}>
+                {room.name}
+              </MenuItem>
+            ))}
+          </Select>
+          </FormControl>
 
           <TextField
             fullWidth
@@ -83,6 +114,19 @@ function BookingForm({ room, onClose }) {
             sx={{ mb: 2 }}
           />
 
+          <DateTimePicker
+            label="开始时间"
+            value={formData.startTime}
+            onChange={(newValue) => setFormData({ ...formData, startTime: newValue })}
+            sx={{ mb: 2, width: '100%' }}
+          />
+
+          <DateTimePicker
+            label="结束时间"
+            value={formData.endTime}
+            onChange={(newValue) => setFormData({ ...formData, endTime: newValue })}
+            sx={{ mb: 2, width: '100%' }}
+          />
           <TextField
             fullWidth
             label="参会人员"
@@ -99,14 +143,13 @@ function BookingForm({ room, onClose }) {
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             multiline
             rows={4}
+            sx={{ mb: 2 }}
           />
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>取消</Button>
-        <Button type="submit" variant="contained">
-          确认预约
-        </Button>
+        <Button type="submit" variant="contained">提交</Button>
       </DialogActions>
     </form>
   );
