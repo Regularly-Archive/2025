@@ -115,7 +115,6 @@ function BookingCard({ booking, onCancel, onEdit, onComplete }) {
             完成
           </Button>
         </Box>
-        {!(booking.status === 0 && onCancel && onEdit) && <Box sx={{ height: '48px' }} />}
       </CardContent>
     </Card>
   );
