@@ -91,6 +91,10 @@ function Calendar() {
     setSelectedEvent(event);
   };
 
+  const handleNavigate = (newDate) => {
+    console.log(newDate)
+  }
+
   return (
     <Box sx={{ height: 'calc(100vh - 100px)' }}>
       <BigCalendar
@@ -102,6 +106,7 @@ function Calendar() {
         messages={messages}
         eventPropGetter={eventStyleGetter}
         onSelectEvent={handleEventClick}
+        onNavigate={handleNavigate}
         views={['month', 'week', 'day', 'agenda']}
         defaultView="month"
         culture="zh-CN"

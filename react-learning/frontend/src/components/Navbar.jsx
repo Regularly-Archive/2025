@@ -20,7 +20,7 @@ function Navbar() {
               </Button>
               {user.role === 1 && (
                 <Button color="inherit" onClick={() => navigate('/admin')}>
-                  管理
+                  系统管理
                 </Button>
               )}
               <Button color="inherit" onClick={logout}>

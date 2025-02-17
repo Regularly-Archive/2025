@@ -27,7 +27,7 @@ function Dashboard() {
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        会议室预约
+        控制台
       </Typography>
       
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
