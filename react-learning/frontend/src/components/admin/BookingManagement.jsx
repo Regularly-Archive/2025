@@ -118,7 +118,7 @@ function BookingManagement() {
       <Box sx={{ mb: 2 }}>
         <TextField
           fullWidth
-          placeholder="搜索预约记录..."
+          placeholder="搜索预约记录"
           value={searchTerm}
           onChange={handleSearch}
           InputProps={{

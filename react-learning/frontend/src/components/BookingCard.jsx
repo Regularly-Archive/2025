@@ -11,6 +11,9 @@ import {
   Room as RoomIcon,
   Group as GroupIcon,
   Schedule as ScheduleIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -66,13 +69,15 @@ function BookingCard({ booking, onCancel, onEdit }) {
             variant="outlined"
             color="primary"
             onClick={() => onEdit(booking)}
+            startIcon={<EditIcon />}
           >
-            修改
+            编辑
           </Button>
           <Button
             variant="outlined"
             color="error"
             onClick={() => onCancel(booking)}
+            startIcon={<CancelIcon />}
           >
             取消
           </Button>

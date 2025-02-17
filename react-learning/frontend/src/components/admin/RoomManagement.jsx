@@ -169,7 +169,7 @@ function RoomManagement() {
       <Box sx={{ mb: 2 }}>
         <TextField
           fullWidth
-          placeholder="搜索会议室..."
+          placeholder="搜索会议室"
           value={keyword}
           onChange={handleSearch}
           InputProps={{
