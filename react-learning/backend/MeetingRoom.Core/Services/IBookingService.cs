@@ -6,6 +6,8 @@ public interface IBookingService
 {
     Task<BookingDTO> GetByIdAsync(long id);
     Task<PagedResult<BookingDTO>> GetPagedListAsync(QueryParameter<Booking, BookingQueryableFilter> queryParameter);
+
+    Task<List<BookingDTO>> GetBookingListAsync(BookingQueryableFilter queryableFilter);
     Task<long> CreateAsync(CreateBookingDTO dto);
     Task<bool> UpdateAsync(UpdateBookingDTO dto);
     Task<bool> CancelAsync(long id);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -12,6 +12,7 @@ import {
   Chip,
   TextField,
   InputAdornment,
+  TablePagination,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -20,6 +21,7 @@ import {
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import { get } from '../../utils/request';
 
 // 模拟预约数据
 const mockBookings = [
@@ -46,13 +48,46 @@ const mockBookings = [
 ];
 
 function BookingManagement() {
-  const [bookings, setBookings] = useState(mockBookings);
+  const [bookings, setBookings] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
+  const fetchBookings = async (pageIndex, pageSize) => {
+    try {
+      setLoading(true);
+      const response = await get(`api/bookings/paginate?pageIndex=${pageIndex + 1}&pageSize=${pageSize}`);
+      if (response.data) {
+        setBookings(response.data.rows);
+        setTotalCount(response.data.totalCount);
+      }
+    } catch (error) {
+      console.error('获取预约记录失败：', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings(page, rowsPerPage);
+  }, [page, rowsPerPage]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    // 这里可以添加搜索逻辑
   };
 
   const handleCancel = (booking) => {
@@ -71,20 +106,13 @@ function BookingManagement() {
 
   const getStatusChip = (status) => {
     const statusConfig = {
-      upcoming: { label: '即将开始', color: 'primary' },
-      ongoing: { label: '进行中', color: 'success' },
-      completed: { label: '已完成', color: 'default' },
-      cancelled: { label: '已取消', color: 'error' },
+      0: { label: '进行中', color: 'success' },
+      1: { label: '已取消', color: 'error' },
+      2: { label: '已完成', color: 'default' },
     };
     const config = statusConfig[status];
     return <Chip label={config.label} color={config.color} size="small" />;
   };
-
-  const filteredBookings = bookings.filter(booking =>
-    booking.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    booking.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    booking.roomName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <Box>
@@ -119,34 +147,65 @@ function BookingManagement() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredBookings.map((booking) => (
-              <TableRow key={booking.id}>
-                <TableCell>{booking.title}</TableCell>
-                <TableCell>{booking.roomName}</TableCell>
-                <TableCell>{booking.userName}</TableCell>
-                <TableCell>
-                  {format(booking.startTime, 'yyyy-MM-dd HH:mm', { locale: zhCN })}
-                </TableCell>
-                <TableCell>
-                  {format(booking.endTime, 'HH:mm', { locale: zhCN })}
-                </TableCell>
-                <TableCell>{booking.attendees}</TableCell>
-                <TableCell>{getStatusChip(booking.status)}</TableCell>
-                <TableCell>
-                  {booking.status === 'upcoming' && (
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleCancel(booking)}
-                    >
-                      <CancelIcon />
-                    </IconButton>
-                  )}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  加载中...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : bookings.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  暂无数据
+                </TableCell>
+              </TableRow>
+            ) : (
+              bookings.map((booking) => (
+                <TableRow key={booking.id}>
+                  <TableCell>{booking.title}</TableCell>
+                  <TableCell>{booking.roomName}</TableCell>
+                  <TableCell>{booking.userName}</TableCell>
+                  <TableCell>
+                    {format(new Date(booking.startTime), 'yyyy-MM-dd HH:mm', { locale: zhCN })}
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(booking.endTime), 'HH:mm', { locale: zhCN })}
+                  </TableCell>
+                  <TableCell>
+                    {
+                      booking.participants && booking.participants.length > 0 ? booking.participants.map(x => x.nickName).join(', ') : ''
+                    }
+                  </TableCell>
+                  <TableCell>{getStatusChip(booking.status)}</TableCell>
+                  <TableCell>
+                    {booking.status === 0 && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleCancel(booking)}
+                      >
+                        <CancelIcon />
+                      </IconButton>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
+        <TablePagination
+          component="div"
+          count={totalCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="每页行数"
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} 共 ${count} 条`
+          }
+          rowsPerPageOptions={[5, 10, 25]}
+        />
       </TableContainer>
 
       <DeleteConfirmDialog

@@ -37,7 +37,7 @@ namespace MeetingRoom.Core.Services
                 .Queryable<Booking>()
                 .Includes<User>(x => x.User)
                 .Includes<Room>(x => x.Room)
-                .WhereIF(currentUser.Role == UserRole.User, x=> x.UserId == currentUser.Id);;
+                .WhereIF(currentUser.Role == UserRole.User, x=> x.UserId == currentUser.Id);
 
             var result = await _bookingRepository.PaginateAsync(queryParameter,queryable);
             return new PagedResult<BookingDTO>
@@ -45,6 +45,19 @@ namespace MeetingRoom.Core.Services
                 Rows = result.Rows.Adapt<List<BookingDTO>>(),
                 TotalCount = result.TotalCount,
             };
+        }
+
+        public async Task<List<BookingDTO>> GetBookingListAsync(BookingQueryableFilter queryableFilter)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync();
+            var queryable = _bookingRepository.SqlSugarClient
+                .Queryable<Booking>()
+                .Includes<User>(x => x.User)
+                .Includes<Room>(x => x.Room)
+                .WhereIF(currentUser.Role == UserRole.User, x => x.UserId == currentUser.Id);
+
+            var list = await _bookingRepository.FindListAsync(queryableFilter, queryable);
+            return list.Adapt<List<BookingDTO>>();
         }
 
         public async Task<long> CreateAsync(CreateBookingDTO dto)

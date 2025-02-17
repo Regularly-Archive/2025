@@ -86,7 +86,7 @@ function UserManagement() {
       if (res.code == 200) {
         setOpenForm(false);
         fetchUsers(page, rowsPerPage);
-        showMessage(res.message, 'success');
+        //showMessage(res.message, 'success');
       }
       fetchUsers(page, rowsPerPage);
     } catch (error) {
@@ -100,7 +100,7 @@ function UserManagement() {
     try {
       setLoading(true);
       res = await del(`api/users/${selectedUser.id}`);
-      showMessage(res.message, 'success');
+      //showMessage(res.message, 'success');
     } catch (error) {
     } finally {
       setLoading(false);
@@ -125,6 +125,13 @@ function UserManagement() {
       fetchUsers(0, rowsPerPage);
     }, 500);
     return () => clearTimeout(timeoutId);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      setPage(0);
+      fetchUsers(0, rowsPerPage);
+    }
   };
 
   const selectUserById = async (userId) => {
@@ -158,6 +165,7 @@ function UserManagement() {
           placeholder="搜索用户"
           value={keyword}
           onChange={handleSearch}
+          onKeyDown={handleKeyDown}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

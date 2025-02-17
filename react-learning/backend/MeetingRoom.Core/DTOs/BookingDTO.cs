@@ -39,7 +39,6 @@ public class UpdateBookingDTO
 
 public class BookingQueryableFilter : IQueryableFilter<Booking>
 {
-    public long? UserId { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public BookingStatus? Status { get; set; }
@@ -47,7 +46,6 @@ public class BookingQueryableFilter : IQueryableFilter<Booking>
     public ISugarQueryable<Booking> Apply(ISugarQueryable<Booking> queryable)
     {
         queryable = queryable
-            .WhereIF(UserId.HasValue, x => x.CreatedBy == UserId.Value.ToString())
             .WhereIF(StartDate.HasValue, x => x.StartTime >= StartDate.Value)
             .WhereIF(EndDate.HasValue, x => x.EndTime <= EndDate.Value)
             .WhereIF(Status.HasValue && Status.Value != BookingStatus.All, x => x.Status == Status.Value);

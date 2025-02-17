@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -16,6 +16,9 @@ import {
   Group as GroupIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
+
+import dayjs from 'dayjs';
+import { get } from '../utils/request';
 
 // 配置本地化
 const locales = {
@@ -74,6 +77,31 @@ const mockBookings = [
 
 function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [bookings, setBookings] = useState([]);
+
+  const fetchBookings = async (startDate, endDate) => {
+    try {
+      const response = await get(`api/bookings/list?startDate=${startDate}&endDate=${endDate}`);
+      const bookings = response.data.map((x, i) => {
+        return {
+          id: i,
+          ...x,
+          start: new Date(x.startTime),
+          end: new Date(x.endDate),
+          title: 'HAHAH'
+        }
+      })
+      
+      setBookings(bookings);
+    } catch (error) {
+      console.error('获取预约数据失败:', error);
+    }
+  };
+
+  useEffect(() => {
+    const { startDate, endDate } = calculateDateRange(new Date());
+    fetchBookings(startDate.toISOString(), endDate.toISOString());
+  }, []);
 
   const eventStyleGetter = (event) => {
     const style = {
@@ -92,14 +120,36 @@ function Calendar() {
   };
 
   const handleNavigate = (newDate) => {
-    console.log(newDate)
+    const { startDate, endDate } = calculateDateRange(newDate);
+    fetchBookings(startDate.toISOString(), endDate.toISOString());
+  };
+
+  const calculateDateRange = (currentDate) => {
+    var startDateOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    var endDateOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+
+    var firstDayOfWeek = startDateOfMonth.getDay();
+    let startDate = startDateOfMonth;
+    if (firstDayOfWeek !== 1) {
+      const daysToSubtract = (firstDayOfWeek + 6) % 7;
+      startDate = dayjs(startDateOfMonth).subtract(daysToSubtract, 'day').toDate();
+    }
+    
+    var lastDayOfWeek = endDateOfMonth.getDay();
+    let endDate = endDateOfMonth;
+    if (lastDayOfWeek !== 0) {
+      const daysToAdd = 7 - lastDayOfWeek;
+      endDate = dayjs(endDateOfMonth).add(daysToAdd, 'day').toDate();
+    }
+
+    return { startDate, endDate };
   }
 
   return (
     <Box sx={{ height: 'calc(100vh - 100px)' }}>
       <BigCalendar
         localizer={localizer}
-        events={mockBookings}
+        events={bookings}
         startAccessor="start"
         endAccessor="end"
         style={{ height: '100%' }}

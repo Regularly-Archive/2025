@@ -51,9 +51,10 @@ namespace MeetingRoom.API.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<JsonResult> FindList([FromQuery] QueryParameter<Booking, BookingQueryableFilter> queryParameter)
+        public async Task<JsonResult> FindList([FromQuery] BookingQueryableFilter queryableFilter)
         {
-            throw new NotImplementedException();
+           var list = await _bookingService.GetBookingListAsync(queryableFilter);
+            return ApiResult.Success(list, "操作成功");
         }
 
 
