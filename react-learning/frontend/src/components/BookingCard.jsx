@@ -6,6 +6,7 @@ import {
   Button,
   Stack,
   Chip,
+  Tooltip,
 } from '@mui/material';
 import {
   Room as RoomIcon,
@@ -14,6 +15,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Cancel as CancelIcon,
+  Description as DescriptionIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -33,9 +35,11 @@ function BookingCard({ booking, onCancel, onEdit }) {
     <Card sx={{ minHeight: '200px' }}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">
-            {booking.title}
-          </Typography>
+          <Tooltip title={booking.title} arrow>
+            <Typography variant="h6" noWrap>
+              {booking.title}
+            </Typography>
+          </Tooltip>
           {getStatusChip(booking.status)}
         </Box>
 
@@ -51,15 +55,30 @@ function BookingCard({ booking, onCancel, onEdit }) {
           </Typography>
 
           <Typography color="text.secondary">
-            <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            {
-              booking.participants && booking.participants.length > 0 ? booking.participants.map(x => x.nickName).join(', ') : ''
-            }
+            <Tooltip title={
+              booking.participants && booking.participants.length > 0 
+                ? booking.participants.map(x => x.nickName).join(', ') 
+                : ''
+            } arrow>
+              <span>
+                <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                {
+                  booking.participants && booking.participants.length > 0 
+                    ? booking.participants.map(x => x.nickName).join(', ') 
+                    : ''
+                }
+              </span>
+            </Tooltip>
           </Typography>
 
           {booking.description && (
-            <Typography color="text.secondary" sx={{ mt: 1 }}>
-              {booking.description}
+            <Typography color="text.secondary" noWrap>
+              <Tooltip title={booking.description} arrow>
+                <span>
+                  <DescriptionIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  {booking.description}
+                </span>
+              </Tooltip>
             </Typography>
           )}
         </Stack>

@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Entities\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MeetingRoom.Infrastructure\MeetingRoom.Infrastructure.csproj" />
   </ItemGroup>
 

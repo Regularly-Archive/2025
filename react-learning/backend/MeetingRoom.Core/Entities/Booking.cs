@@ -26,6 +26,8 @@ public class Booking : BaseEntity
     [SugarColumn(IsJson = true)]
     public List<Participant> Participants { get; set; }
 
+    public string Description {  get; set; }
+
     [SugarColumn(IsIgnore = true)]
     [Navigate(NavigateType.OneToOne, "RoomId")]
     public Room Room { get; set; }

@@ -93,6 +93,10 @@ namespace MeetingRoom.Core.Services
                     Email = userInfo.Email,
                     Department = userInfo.Department,
                     Role = userInfo.Role,
+                    CreatedAt = userInfo.CreatedAt,
+                    CreatedBy = userInfo.CreatedBy,
+                    UpdatedAt = userInfo.UpdatedAt,
+                    UpdatedBy = userInfo.UpdatedBy,
                 }
             };
         }

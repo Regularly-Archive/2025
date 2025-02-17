@@ -42,7 +42,7 @@ namespace MeetingRoom.Core.Services
             var result = await _bookingRepository.PaginateAsync(queryParameter,queryable);
             return new PagedResult<BookingDTO>
             {
-                Rows = result.Rows.Adapt<List<BookingDTO>>(),
+                Rows = result.Rows.Select(x => MapToDto(x)).ToList(),
                 TotalCount = result.TotalCount,
             };
         }
@@ -57,7 +57,7 @@ namespace MeetingRoom.Core.Services
                 .WhereIF(currentUser.Role == UserRole.User, x => x.UserId == currentUser.Id);
 
             var list = await _bookingRepository.FindListAsync(queryableFilter, queryable);
-            return list.Adapt<List<BookingDTO>>();
+            return list.Select(x => MapToDto(x)).ToList();
         }
 
         public async Task<long> CreateAsync(CreateBookingDTO dto)
@@ -223,6 +223,11 @@ namespace MeetingRoom.Core.Services
                 EndTime = booking.EndTime,
                 Status = booking.Status,
                 Participants = booking.Participants,
+                Description = booking.Description,
+                CreatedAt = booking.CreatedAt,
+                CreatedBy = booking.CreatedBy,
+                UpdatedAt = booking.UpdatedAt,
+                UpdatedBy = booking.UpdatedBy
             };
         }
     }

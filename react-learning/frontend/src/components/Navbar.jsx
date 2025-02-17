@@ -10,11 +10,18 @@ function Navbar() {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          会议室预约系统
+          XXX会议室预约系统
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           {user ? (
             <>
+              <Typography
+                variant="body1"
+                color="inherit"
+                sx={{ fontSize: '0.875rem' }}
+              >
+                😊 你好，{user.nickName}！
+              </Typography>
               <Button color="inherit" onClick={() => navigate('/dashboard')}>
                 控制台
               </Button>

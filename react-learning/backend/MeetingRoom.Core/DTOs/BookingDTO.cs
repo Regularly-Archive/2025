@@ -15,7 +15,11 @@ public class BookingDTO
     public DateTime EndTime { get; set; }
     public BookingStatus Status { get; set; }
     public List<Participant> Participants { get; set; }
+    public string Description { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string CreatedBy {  get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public string UpdatedBy { get; set; }
 }
 
 public class CreateBookingDTO
@@ -25,6 +29,7 @@ public class CreateBookingDTO
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public List<Participant> Participants { get; set; }
+    public string Description {  get; set; }
 }
 
 public class UpdateBookingDTO
@@ -34,6 +39,7 @@ public class UpdateBookingDTO
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
     public List<Participant> Participants { get; set; }
+    public string Description { get; set; }
     public BookingStatus? Status { get; set; }
 }
 
