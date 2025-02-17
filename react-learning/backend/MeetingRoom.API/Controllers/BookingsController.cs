@@ -43,6 +43,13 @@ namespace MeetingRoom.API.Controllers
             return ApiResult.Success(new { }, "操作成功");
         }
 
+        [HttpPut("{id}/complete")]
+        public async Task<JsonResult> Complete(long id)
+        {
+            await _bookingService.CompleteAsync(id);
+            return ApiResult.Success(new { }, "操作成功");
+        }
+
         [HttpGet("paginate")]
         public async Task<JsonResult> GetByPageAsync([FromQuery] QueryParameter<Booking, BookingQueryableFilter> queryParameter)
         {

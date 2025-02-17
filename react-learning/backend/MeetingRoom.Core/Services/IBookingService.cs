@@ -11,6 +11,7 @@ public interface IBookingService
     Task<long> CreateAsync(CreateBookingDTO dto);
     Task<bool> UpdateAsync(UpdateBookingDTO dto);
     Task<bool> CancelAsync(long id);
+    Task<bool> CompleteAsync(long id);
     Task<bool> IsTimeSlotAvailableAsync(long roomId, DateTime startTime, DateTime endTime, long? excludeBookingId = null);
     Task<bool> DeleteAsync(long id);
 } 

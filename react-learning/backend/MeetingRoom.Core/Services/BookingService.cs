@@ -172,6 +172,26 @@ namespace MeetingRoom.Core.Services
             return true;
         }
 
+        public async Task<bool> CompleteAsync(long id)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync();
+            var booking = await _bookingRepository.GetAsync(id);
+            if (booking == null)
+                throw new BusinessException("预约记录不存在");
+
+            if (booking.UserId != currentUser.Id)
+                throw new BusinessException("只能完成自己的预约");
+
+            if (booking.Status != BookingStatus.Pending)
+                throw new BusinessException("只能完成进行中的预约");
+
+            booking.Status = BookingStatus.Completed;
+            booking.UpdatedAt = DateTime.Now;
+
+            await _bookingRepository.UpdateAsync(booking);
+            return true;
+        }
+
         public async Task<bool> DeleteAsync(long id)
         {
             var currentUser = await _userService.GetCurrentUserAsync();

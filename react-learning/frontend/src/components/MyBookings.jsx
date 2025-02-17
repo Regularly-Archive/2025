@@ -40,6 +40,7 @@ const MyBookings = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openCompleteDialog, setOpenCompleteDialog] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -74,7 +75,6 @@ const MyBookings = () => {
     try {
 
       await put(`api/Bookings/${selectedBooking.id}/cancel`);
-      console.log('取消预约成功：', selectedBooking.id);
       setOpenCancelDialog(false);
       await fetchBookings();
     } catch (err) {
@@ -85,6 +85,21 @@ const MyBookings = () => {
   const handleEditBooking = (booking) => {
     setSelectedBooking(booking);
     setOpenEditDialog(true);
+  };
+
+  const handleCompleteBooking = (booking) => {
+    setSelectedBooking(booking);
+    setOpenCompleteDialog(true);
+  };
+
+  const confirmCompleteBooking = async () => {
+    try {
+      await put(`api/bookings/${selectedBooking.id}/complete`);
+      setOpenCompleteDialog(false);
+      await fetchBookings();
+    } catch (err) {
+      console.error('完成预约失败：', err);
+    }
   };
 
   return (
@@ -108,6 +123,7 @@ const MyBookings = () => {
               booking={booking}
               onCancel={handleCancelBooking}
               onEdit={handleEditBooking}
+              onComplete={handleCompleteBooking}
             />
           </Grid>
         ))}
@@ -186,6 +202,30 @@ const MyBookings = () => {
             await fetchBookings()
           }}
         />
+      </Dialog>
+
+      <Dialog
+        open={openCompleteDialog}
+        onClose={() => setOpenCompleteDialog(false)}
+      >
+        <DialogTitle>确认完成预约</DialogTitle>
+        <DialogContent>
+          <Typography>
+            您确定要完成此预约吗？
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCompleteDialog(false)}>
+            取消
+          </Button>
+          <Button
+            onClick={confirmCompleteBooking}
+            color="success"
+            variant="contained"
+          >
+            确认完成
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
