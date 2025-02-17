@@ -13,39 +13,22 @@ import {
   TextField,
   InputAdornment,
   TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography
 } from '@mui/material';
 import {
   Search as SearchIcon,
   Cancel as CancelIcon,
+  Check as CheckIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
-import { get } from '../../utils/request';
-
-// 模拟预约数据
-const mockBookings = [
-  {
-    id: 1,
-    roomName: '会议室 A',
-    title: '产品评审会议',
-    startTime: new Date('2024-03-20T10:00:00'),
-    endTime: new Date('2024-03-20T11:30:00'),
-    userName: '张三',
-    status: 'upcoming',
-    attendees: '张三, 李四, 王五',
-  },
-  {
-    id: 2,
-    roomName: '会议室 B',
-    title: '团队周会',
-    startTime: new Date('2024-03-18T14:00:00'),
-    endTime: new Date('2024-03-18T15:00:00'),
-    userName: '李四',
-    status: 'completed',
-    attendees: '整个开发团队',
-  },
-];
+import { get, put } from '../../utils/request';
 
 function BookingManagement() {
   const [bookings, setBookings] = useState([]);
@@ -56,6 +39,7 @@ function BookingManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [openCompleteDialog, setOpenCompleteDialog] = useState(false);
 
   const fetchBookings = async (pageIndex, pageSize) => {
     try {
@@ -94,20 +78,36 @@ function BookingManagement() {
     setOpenDelete(true);
   };
 
-  const handleConfirmCancel = () => {
-    setBookings(bookings.map(booking =>
-      booking.id === selectedBooking.id
-        ? { ...booking, status: 'cancelled' }
-        : booking
-    ));
-    setOpenDelete(false);
+  const handleConfirmCancel = async () => {
+    try {
+      await put(`api/bookings/${selectedBooking.id}/cancel`);
+      await fetchBookings(page, rowsPerPage);
+      setOpenDelete(false);
+    } catch (error) {
+      console.error('取消预约失败：', error);
+    }
+  };
+
+  const handleComplete = (booking) => {
+    setSelectedBooking(booking);
+    setOpenCompleteDialog(true);
+  };
+
+  const handleConfirmComplete = async () => {
+    try {
+      await put(`api/bookings/${selectedBooking.id}/complete`);
+      await fetchBookings(page, rowsPerPage);
+      setOpenCompleteDialog(false);
+    } catch (error) {
+      console.error('完成预约失败：', error);
+    }
   };
 
   const getStatusChip = (status) => {
     const statusConfig = {
-      0: { label: '进行中', color: 'success' },
+      0: { label: '进行中', color: 'default' },
       1: { label: '已取消', color: 'error' },
-      2: { label: '已完成', color: 'default' },
+      2: { label: '已完成', color: 'success' },
     };
     const config = statusConfig[status];
     return <Chip label={config.label} color={config.color} size="small" />;
@@ -177,14 +177,26 @@ function BookingManagement() {
                   </TableCell>
                   <TableCell>{getStatusChip(booking.status)}</TableCell>
                   <TableCell>
+                    {booking.status === 0 && new Date() < new Date(booking.startTime) && (
+                      <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleCancel(booking)}
+                      startIcon={<CancelIcon />}
+                    >
+                      取消
+                    </Button>
+                    )}
                     {booking.status === 0 && (
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => handleCancel(booking)}
-                      >
-                        <CancelIcon />
-                      </IconButton>
+                      <Button
+                      variant="outlined"
+                      color="success"
+                      onClick={() => handleComplete(booking)}
+                      startIcon={<CheckIcon />}
+                      sx={{marginLeft: '5px'}}
+                    >
+                      完成
+                    </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -214,6 +226,26 @@ function BookingManagement() {
         onConfirm={handleConfirmCancel}
         onCancel={() => setOpenDelete(false)}
       />
+
+      <Dialog
+        open={openCompleteDialog}
+        onClose={() => setOpenCompleteDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>确认完成预约</DialogTitle>
+        <DialogContent>
+          <Typography>
+            您确定要完成"{selectedBooking?.title}"的预约吗？
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCompleteDialog(false)}>取消</Button>
+          <Button onClick={handleConfirmComplete} color="success" variant="contained">
+            确认完成
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

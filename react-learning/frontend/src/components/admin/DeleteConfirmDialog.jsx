@@ -9,7 +9,12 @@ import {
 
 function DeleteConfirmDialog({ open, title, content, onConfirm, onCancel }) {
   return (
-    <Dialog open={open} onClose={onCancel}>
+    <Dialog 
+      open={open} 
+      onClose={onCancel}         
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Typography>{content}</Typography>

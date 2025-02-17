@@ -11,7 +11,8 @@ import {
   Stack,
   Typography,
   Tooltip,
-  Button
+  Button,
+  Chip
 } from '@mui/material';
 import {
   Room as RoomIcon,
@@ -118,6 +119,16 @@ function Calendar() {
     return { startDate, endDate };
   }
 
+  const getStatusChip = (status) => {
+    const statusConfig = {
+      0: { label: '进行中', color: 'default' },
+      1: { label: '已取消', color: 'error' },
+      2: { label: '已完成', color: 'success' },
+    };
+    const config = statusConfig[status];
+    return <Chip label={config.label} color={config.color} size="small" />;
+  };
+
   return (
     <Box sx={{ height: 'calc(100vh - 100px)' }}>
       <BigCalendar
@@ -155,6 +166,10 @@ function Calendar() {
                 `${format(new Date(selectedEvent.startTime), 'yyyy/MM/dd HH:mm', { locale: zhCN })} - ${format(new Date(selectedEvent.endTime), 'HH:mm', { locale: zhCN })}` : ''
               }
             </Typography>
+
+            <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+              {selectedEvent && getStatusChip(selectedEvent.status)}
+            </Box>
 
             <Typography>
               <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />

@@ -166,6 +166,8 @@ const MyBookings = () => {
       <Dialog
         open={openCancelDialog}
         onClose={() => setOpenCancelDialog(false)}
+        maxWidth="sm"
+        fullWidth
       >
         <DialogTitle>确认取消预约</DialogTitle>
         <DialogContent>
@@ -207,6 +209,8 @@ const MyBookings = () => {
       <Dialog
         open={openCompleteDialog}
         onClose={() => setOpenCompleteDialog(false)}
+        maxWidth="sm"
+        fullWidth
       >
         <DialogTitle>确认完成预约</DialogTitle>
         <DialogContent>
