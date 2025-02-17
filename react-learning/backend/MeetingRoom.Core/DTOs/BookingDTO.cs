@@ -42,13 +42,16 @@ public class BookingQueryableFilter : IQueryableFilter<Booking>
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public BookingStatus? Status { get; set; }
+    public string Keyword { get; set; }
 
     public ISugarQueryable<Booking> Apply(ISugarQueryable<Booking> queryable)
     {
         queryable = queryable
             .WhereIF(StartDate.HasValue, x => x.StartTime >= StartDate.Value)
             .WhereIF(EndDate.HasValue, x => x.EndTime <= EndDate.Value)
-            .WhereIF(Status.HasValue && Status.Value != BookingStatus.All, x => x.Status == Status.Value);
+            .WhereIF(Status.HasValue && Status.Value != BookingStatus.All, x => x.Status == Status.Value)
+            .WhereIF(!string.IsNullOrEmpty(Keyword), x => x.Title.Contains(Keyword));
+
 
         return queryable;
     }

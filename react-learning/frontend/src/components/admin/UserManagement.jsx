@@ -55,7 +55,7 @@ function UserManagement() {
 
   useEffect(() => {
     fetchUsers(page, rowsPerPage);
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, keyword]);
 
   const handleAdd = () => {
     setSelectedUser(null);
@@ -120,18 +120,6 @@ function UserManagement() {
 
   const handleSearch = (e) => {
     setKeyword(e.target.value);
-    const timeoutId = setTimeout(() => {
-      setPage(0);
-      fetchUsers(0, rowsPerPage);
-    }, 500);
-    return () => clearTimeout(timeoutId);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      setPage(0);
-      fetchUsers(0, rowsPerPage);
-    }
   };
 
   const selectUserById = async (userId) => {
@@ -165,7 +153,6 @@ function UserManagement() {
           placeholder="搜索用户"
           value={keyword}
           onChange={handleSearch}
-          onKeyDown={handleKeyDown}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

@@ -37,7 +37,6 @@ function RoomManagement() {
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
 
-
   const fetchRooms = async (pageIndex, pageSize) => {
     try {
       setLoading(true);
@@ -55,7 +54,7 @@ function RoomManagement() {
 
   useEffect(() => {
     fetchRooms(page, rowsPerPage);
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, keyword]);
 
   const handleAdd = () => {
     setSelectedRoom(null);
@@ -120,11 +119,6 @@ function RoomManagement() {
 
   const handleSearch = (e) => {
     setKeyword(e.target.value);
-    const timeoutId = setTimeout(() => {
-      setPage(0);
-      fetchRooms(0, rowsPerPage);
-    }, 500);
-    return () => clearTimeout(timeoutId);
   };
 
   const selectRoomById = async (roomId) => {
@@ -142,7 +136,7 @@ function RoomManagement() {
     }
   };
 
-  const getStatusChip = (status) => {
+  const getRoomStatusChip = (status) => {
     const statusConfig = {
       0: { label: '可用', color: 'success' },
       1: { label: '维护中', color: 'warning' },
@@ -152,7 +146,7 @@ function RoomManagement() {
     return <Chip label={config.label} color={config.color} size="small" />;
   };
 
-  const getTypeChip = (type) => {
+  const getRoomType = (type) => {
     var typeConfig = {
       0: '普通会议室',
       1: '多媒体会议室'
@@ -219,7 +213,7 @@ function RoomManagement() {
                 <TableRow key={room.id}>
                   <TableCell>{room.name}</TableCell>
                   <TableCell>{room.capacity}人</TableCell>
-                  <TableCell>{getTypeChip(room.type)}</TableCell>
+                  <TableCell>{getRoomType(room.type)}</TableCell>
                   <TableCell>
                     {room.facilities.map((facility) => (
                       <Chip
@@ -231,7 +225,7 @@ function RoomManagement() {
                     ))}
                   </TableCell>
                   <TableCell>{room.availableStartTime}-{room.availableEndTime}</TableCell>
-                  <TableCell>{getStatusChip(room.status)}</TableCell>
+                  <TableCell>{getRoomStatusChip(room.status)}</TableCell>
                   <TableCell>
                     <IconButton
                       size="small"

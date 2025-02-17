@@ -60,7 +60,7 @@ function BookingManagement() {
   const fetchBookings = async (pageIndex, pageSize) => {
     try {
       setLoading(true);
-      const response = await get(`api/bookings/paginate?pageIndex=${pageIndex + 1}&pageSize=${pageSize}`);
+      const response = await get(`api/bookings/paginate?pageIndex=${pageIndex + 1}&pageSize=${pageSize}&keyword=${searchTerm}`);
       if (response.data) {
         setBookings(response.data.rows);
         setTotalCount(response.data.totalCount);
@@ -74,7 +74,7 @@ function BookingManagement() {
 
   useEffect(() => {
     fetchBookings(page, rowsPerPage);
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, searchTerm]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -87,7 +87,6 @@ function BookingManagement() {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
-    // 这里可以添加搜索逻辑
   };
 
   const handleCancel = (booking) => {
