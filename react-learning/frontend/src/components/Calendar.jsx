@@ -10,11 +10,14 @@ import {
   DialogContent,
   Stack,
   Typography,
+  Tooltip,
+  Button
 } from '@mui/material';
 import {
   Room as RoomIcon,
   Group as GroupIcon,
   Schedule as ScheduleIcon,
+  Description as DescriptionIcon,
 } from '@mui/icons-material';
 
 import dayjs from 'dayjs';
@@ -33,7 +36,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// 自定义日历消息
 const messages = {
   today: '今天',
   previous: '上一页',
@@ -48,33 +50,6 @@ const messages = {
   noEventsInRange: '当前时间段无预约',
 };
 
-// 模拟预约数据
-const mockBookings = [
-  {
-    id: 1,
-    roomId: 1,
-    roomName: '会议室 A',
-    title: '产品评审会议',
-    start: new Date('2024-03-20T10:00:00'),
-    end: new Date('2024-03-20T11:30:00'),
-    attendees: '张三, 李四, 王五',
-    status: 'upcoming',
-    description: '讨论新产品功能特性',
-  },
-  {
-    id: 2,
-    roomId: 2,
-    roomName: '会议室 B',
-    title: '团队周会',
-    start: new Date('2024-03-20T14:00:00'),
-    end: new Date('2024-03-20T15:00:00'),
-    attendees: '整个开发团队',
-    status: 'upcoming',
-    description: '回顾本周工作进展',
-  },
-  // 更多预约记录...
-];
-
 function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [bookings, setBookings] = useState([]);
@@ -84,11 +59,9 @@ function Calendar() {
       const response = await get(`api/bookings/list?startDate=${startDate}&endDate=${endDate}`);
       const bookings = response.data.map((x, i) => {
         return {
-          id: i,
           ...x,
           start: new Date(x.startTime),
-          end: new Date(x.endDate),
-          title: 'HAHAH'
+          end: new Date(x.endTime),
         }
       })
       
@@ -119,9 +92,9 @@ function Calendar() {
     setSelectedEvent(event);
   };
 
-  const handleNavigate = (newDate) => {
+  const handleNavigate = async (newDate) => {
     const { startDate, endDate } = calculateDateRange(newDate);
-    fetchBookings(startDate.toISOString(), endDate.toISOString());
+    await fetchBookings(startDate.toISOString(), endDate.toISOString());
   };
 
   const calculateDateRange = (currentDate) => {
@@ -178,22 +151,45 @@ function Calendar() {
 
             <Typography>
               <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {selectedEvent && format(selectedEvent.start, 'HH:mm')} -
-              {selectedEvent && format(selectedEvent.end, 'HH:mm')}
+              {selectedEvent ? 
+                `${format(new Date(selectedEvent.startTime), 'yyyy/MM/dd HH:mm', { locale: zhCN })} - ${format(new Date(selectedEvent.endTime), 'HH:mm', { locale: zhCN })}` : ''
+              }
             </Typography>
 
             <Typography>
               <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {selectedEvent?.attendees}
+              <Tooltip title={
+              selectedEvent && selectedEvent.participants && selectedEvent.participants.length > 0 
+                ? selectedEvent.participants.map(x => x.nickName).join(', ') 
+                : ''
+            } arrow>
+              <span>
+                {
+                  selectedEvent && selectedEvent.participants && selectedEvent.participants.length > 0 
+                    ? selectedEvent.participants.map(x => x.nickName).join(', ') 
+                    : ''
+                }
+              </span>
+            </Tooltip>
             </Typography>
 
             {selectedEvent?.description && (
-              <Typography sx={{ mt: 2 }}>
-                {selectedEvent.description}
-              </Typography>
+              <Typography color="text.secondary" noWrap>
+              <Tooltip title={selectedEvent.description} arrow>
+                <span>
+                  <DescriptionIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  {selectedEvent.description}
+                </span>
+              </Tooltip>
+            </Typography>
             )}
           </Stack>
         </DialogContent>
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button variant="contained" onClick={() => setSelectedEvent(null)}>
+            关闭
+          </Button>
+        </Box>
       </Dialog>
     </Box>
   );
