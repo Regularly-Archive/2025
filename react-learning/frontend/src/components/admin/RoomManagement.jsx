@@ -187,12 +187,12 @@ function RoomManagement() {
           <TableHead>
             <TableRow>
               <TableCell>名称</TableCell>
-              <TableCell>容量</TableCell>
-              <TableCell>类型</TableCell>
-              <TableCell>设施</TableCell>
-              <TableCell>可用时间</TableCell>
-              <TableCell>状态</TableCell>
-              <TableCell>操作</TableCell>
+              <TableCell align="center">容量</TableCell>
+              <TableCell align="center">类型</TableCell>
+              <TableCell align="center">设施</TableCell>
+              <TableCell align="center">可用时间</TableCell>
+              <TableCell align="center">状态</TableCell>
+              <TableCell align="center">操作</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -212,9 +212,9 @@ function RoomManagement() {
               rooms.map((room) => (
                 <TableRow key={room.id}>
                   <TableCell>{room.name}</TableCell>
-                  <TableCell>{room.capacity}人</TableCell>
-                  <TableCell>{getRoomType(room.type)}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">{room.capacity}人</TableCell>
+                  <TableCell align="center">{getRoomType(room.type)}</TableCell>
+                  <TableCell align="center">
                     {room.facilities.map((facility) => (
                       <Chip
                         key={facility}
@@ -224,9 +224,9 @@ function RoomManagement() {
                       />
                     ))}
                   </TableCell>
-                  <TableCell>{room.availableStartTime}-{room.availableEndTime}</TableCell>
-                  <TableCell>{getRoomStatusChip(room.status)}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">{room.availableStartTime}-{room.availableEndTime}</TableCell>
+                  <TableCell align="center">{getRoomStatusChip(room.status)}</TableCell>
+                  <TableCell align="center">
                     <IconButton
                       size="small"
                       onClick={() => handleEdit(room)}

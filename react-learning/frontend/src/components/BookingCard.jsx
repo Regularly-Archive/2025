@@ -88,15 +88,17 @@ function BookingCard({ booking, onCancel, onEdit, onComplete }) {
         </Stack>
 
         <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => onEdit(booking)}
-            startIcon={<EditIcon />}
-          >
-            编辑
-          </Button>
-          {currentTime < bookingStartTime && (
+          {booking.status == 0  &&( 
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => onEdit(booking)}
+              startIcon={<EditIcon />}
+            >
+              编辑
+            </Button>
+          )}
+          {currentTime < bookingStartTime && booking.status == 0 && (
             <Button
               variant="outlined"
               color="error"
@@ -106,14 +108,16 @@ function BookingCard({ booking, onCancel, onEdit, onComplete }) {
               取消
             </Button>
           )}
-          <Button
-            variant="outlined"
-            color="success"
-            onClick={() => onComplete(booking.id)}
-            startIcon={<CheckIcon />}
-          >
-            完成
-          </Button>
+          { booking.status == 0 && (
+            <Button
+              variant="outlined"
+              color="success"
+              onClick={() => onComplete(booking)}
+              startIcon={<CheckIcon />}
+            >
+              完成
+            </Button>
+          )}
         </Box>
       </CardContent>
     </Card>

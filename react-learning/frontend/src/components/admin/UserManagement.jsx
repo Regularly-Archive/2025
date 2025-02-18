@@ -167,12 +167,12 @@ function UserManagement() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>用户名</TableCell>
-              <TableCell>姓名</TableCell>
-              <TableCell>邮箱</TableCell>
-              <TableCell>部门</TableCell>
-              <TableCell>角色</TableCell>
-              <TableCell>操作</TableCell>
+              <TableCell align="center">用户名</TableCell>
+              <TableCell align="center">姓名</TableCell>
+              <TableCell align="center">邮箱</TableCell>
+              <TableCell align="center">部门</TableCell>
+              <TableCell align="center">角色</TableCell>
+              <TableCell align="center">操作</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -191,18 +191,18 @@ function UserManagement() {
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.userName}</TableCell>
-                  <TableCell>{user.nickName}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.department}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">{user.userName}</TableCell>
+                  <TableCell align="center">{user.nickName}</TableCell>
+                  <TableCell align="center">{user.email}</TableCell>
+                  <TableCell align="center">{user.department}</TableCell>
+                  <TableCell align="center">
                     <Chip
                       label={user.role === 1 ? '管理员' : '普通用户'}
                       color={user.role === 1 ? 'primary' : 'default'}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <IconButton
                       size="small"
                       onClick={() => handleEdit(user)}

@@ -156,7 +156,7 @@ namespace MeetingRoom.Core.Services
             if (booking == null)
                 throw new BusinessException("预约记录不存在");
 
-            if (booking.UserId != currentUser.Id)
+            if (booking.UserId != currentUser.Id && currentUser.Role != UserRole.Admin)
                 throw new BusinessException("只能取消自己的预约");
 
             if (booking.Status != BookingStatus.Pending)
@@ -179,7 +179,7 @@ namespace MeetingRoom.Core.Services
             if (booking == null)
                 throw new BusinessException("预约记录不存在");
 
-            if (booking.UserId != currentUser.Id)
+            if (booking.UserId != currentUser.Id && currentUser.Role != UserRole.Admin)
                 throw new BusinessException("只能完成自己的预约");
 
             if (booking.Status != BookingStatus.Pending)

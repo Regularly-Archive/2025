@@ -18,7 +18,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Typography
+  Typography,
+  Tooltip
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -135,14 +136,14 @@ function BookingManagement() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>会议主题</TableCell>
-              <TableCell>会议室</TableCell>
-              <TableCell>预约人</TableCell>
-              <TableCell>开始时间</TableCell>
-              <TableCell>结束时间</TableCell>
-              <TableCell>参会人员</TableCell>
-              <TableCell>状态</TableCell>
-              <TableCell>操作</TableCell>
+              <TableCell style={{ width: 100 }}>会议主题</TableCell>
+              <TableCell align="center">会议室</TableCell>
+              <TableCell align="center">预约人</TableCell>
+              <TableCell align="center">开始时间</TableCell>
+              <TableCell align="center">结束时间</TableCell>
+              <TableCell align="center">参会人员</TableCell>
+              <TableCell align="center">状态</TableCell>
+              <TableCell align="center">操作</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -161,42 +162,46 @@ function BookingManagement() {
             ) : (
               bookings.map((booking) => (
                 <TableRow key={booking.id}>
-                  <TableCell>{booking.title}</TableCell>
-                  <TableCell>{booking.roomName}</TableCell>
-                  <TableCell>{booking.userName}</TableCell>
-                  <TableCell>
+                  <TableCell style={{ width: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Tooltip title={booking.title} arrow>
+                      <span>{booking.title}</span>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="center">{booking.roomName}</TableCell>
+                  <TableCell align="center">{booking.userName}</TableCell>
+                  <TableCell align="center">
                     {format(new Date(booking.startTime), 'yyyy-MM-dd HH:mm', { locale: zhCN })}
                   </TableCell>
-                  <TableCell>
-                    {format(new Date(booking.endTime), 'HH:mm', { locale: zhCN })}
+                  <TableCell align="center">
+                    {format(new Date(booking.endTime), 'yyyy-MM-dd HH:mm', { locale: zhCN })}
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     {
                       booking.participants && booking.participants.length > 0 ? booking.participants.map(x => x.nickName).join(', ') : ''
                     }
                   </TableCell>
-                  <TableCell>{getStatusChip(booking.status)}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">{getStatusChip(booking.status)}</TableCell>
+                  <TableCell align="center">
                     {booking.status === 0 && new Date() < new Date(booking.startTime) && (
                       <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleCancel(booking)}
-                      startIcon={<CancelIcon />}
-                    >
-                      取消
-                    </Button>
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleCancel(booking)}
+                        startIcon={<CancelIcon />}
+                      >
+                        取消
+                      </Button>
                     )}
                     {booking.status === 0 && (
                       <Button
-                      variant="outlined"
-                      color="success"
-                      onClick={() => handleComplete(booking)}
-                      startIcon={<CheckIcon />}
-                      sx={{marginLeft: '5px'}}
-                    >
-                      完成
-                    </Button>
+                        variant="outlined"
+                        color="success"
+                        onClick={() => handleComplete(booking)}
+                        startIcon={<CheckIcon />}
+                        sx={{ marginLeft: '5px' }}
+                      >
+                        完成
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>

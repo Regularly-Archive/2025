@@ -9,13 +9,14 @@ import {
   Button,
   Dialog,
   TablePagination,
+  Tooltip,
 } from '@mui/material';
 import {
   MeetingRoom as RoomIcon,
   Group as GroupIcon,
   Event as EventIcon,
   AccessTime as AccessTimeIcon,
-  AccessTime
+  Description as DescriptionIcon,
 } from '@mui/icons-material';
 import BookingForm from './BookingForm';
 import { get } from '../utils/request';
@@ -96,6 +97,13 @@ function RoomList() {
                 <Typography color="text.secondary" gutterBottom>
                   <AccessTimeIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                   可用时间：{room.availableStartTime} - {room.availableEndTime}
+                </Typography>
+      
+                <Typography color="text.secondary" gutterBottom noWrap>
+                  <DescriptionIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  <Tooltip title={room.description} arrow>
+                  {room.description}
+                  </Tooltip>
                 </Typography>
 
                 <Box sx={{ mt: 2 }}>

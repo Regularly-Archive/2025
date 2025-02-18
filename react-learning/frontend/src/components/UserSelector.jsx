@@ -42,7 +42,7 @@ const UserSelector = ({ placeholder, maxVisibleUsers = 5, initialUsers = [], onC
 
     useEffect(() => {
         handleSearch();
-    }, []);
+    }, [pageIndex, rowsPerPage, searchTerm]);
 
     const handleSearch = async () => {
         const response = await get(`api/Users/paginate?pageIndex=${pageIndex}&pageSize=${rowsPerPage}&keyword=${searchTerm}`);
@@ -111,7 +111,7 @@ const UserSelector = ({ placeholder, maxVisibleUsers = 5, initialUsers = [], onC
                             fullWidth
                             variant="outlined"
                             onChange={handleSearchChange}
-                            onKeyPress={handleSearchKeyPress}
+                            onKeyDown={handleSearchKeyPress}
                         />
                         <Button onClick={handleSearch} style={{ marginLeft: '8px' }}>
                             <SearchIcon />
@@ -122,21 +122,21 @@ const UserSelector = ({ placeholder, maxVisibleUsers = 5, initialUsers = [], onC
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>用户名</TableCell>
-                                        <TableCell>姓名</TableCell>
-                                        <TableCell>邮箱</TableCell>
-                                        <TableCell>部门</TableCell>
-                                        <TableCell>操作</TableCell>
+                                        <TableCell align='center'>用户名</TableCell>
+                                        <TableCell align='center'>姓名</TableCell>
+                                        <TableCell align='center'>邮箱</TableCell>
+                                        <TableCell align='center'>部门</TableCell>
+                                        <TableCell align='center'>操作</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {searchResults.map(user => (
                                         <TableRow key={user.id} onClick={() => handleSelectResult(user)}>
-                                            <TableCell>{user.userName}</TableCell>
-                                            <TableCell>{user.nickName}</TableCell>
-                                            <TableCell>{user.email}</TableCell>
-                                            <TableCell>{user.department}</TableCell>
-                                            <TableCell>
+                                            <TableCell align='center'>{user.userName}</TableCell>
+                                            <TableCell align='center'>{user.nickName}</TableCell>
+                                            <TableCell align='center'>{user.email}</TableCell>
+                                            <TableCell align='center'>{user.department}</TableCell>
+                                            <TableCell align='center'>
                                                 <Button onClick={() => handleSelectResult(user)}>选择</Button>
                                             </TableCell>
                                         </TableRow>
