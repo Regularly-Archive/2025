@@ -78,5 +78,4 @@ class AverageTool(BaseTool):
 
 
 if __name__ == '__main__':
-    resultSearchTool()._run("上海许昕背后击球体育文化发展有限公司 名称由来")
-    print(result)
+    SearchTool()._run("上海许昕背后击球体育文化发展有限公司 名称由来")

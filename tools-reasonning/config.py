@@ -1,13 +1,16 @@
 REASONING_PROMPT_TEMPLATE = """
-Generate the next reasoning step to resolve the question through contextual analysis and tool usage:
+[Task]
+Generate the next reasoning step to resolve the question through contextual analysis and tool usage.
 
 [Rules]
-* If the context directly answers the question with >95% confidence, set continue=false
-* Tool parameters must strictly match the data types defined in tool schemas
-* Terminate the process if 3 consecutive tool calls fail to advance reasoning
-* Always maintain valid JSON syntax (no comments, double quotes only)
-* Never invent non-existent tools
-* The language used during the reasoning process should remain consistent with the language in which the user posed the question.
+* If the context answers the question with >95% confidence, set continue=false.
+* If the LLM answers the question with >95% confidence, set continue=false.
+* Tool parameters must strictly match the data types defined in tool schemas.
+* Terminate the process if 3 consecutive tool calls fail to advance reasoning.
+* Always maintain valid JSON syntax (no comments, double quotes only).
+* Never invent non-existent tools.
+* Use the same language as the user's question throughout the reasoning process.
+* Do not generate duplicate reasoning steps if they have been shown in previous context.
 
 [Current Context]
 {context}
@@ -48,4 +51,24 @@ Examples:
     "confidence": 98,
     "continue": false
 }}
+"""
+
+
+FALLBACK_PROMPT_TEMPLATE="""
+[Task]
+Generate an accurate and relevant response to the question based on the provided context.
+
+[Current Context]
+{context}
+
+[Current Question] 
+{question}
+
+[Instructions]
+* Carefully analyze the context to identify relevant information..
+* Ensure the response directly addresses the question.
+* Keep the response concise and clear.
+* If the context lacks sufficient information, state that the answer cannot be determined from the given context.
+
+[Current Answer]
 """
