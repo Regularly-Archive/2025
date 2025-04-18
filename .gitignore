@@ -76,3 +76,4 @@ ENV/
 .idea/
 .vscode/
 .vs
+vue-webcontainer/react-hello-word/
